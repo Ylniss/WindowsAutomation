@@ -4,6 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.InitSetup
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.Shared", "WindowsAutomation.Shared\WindowsAutomation.Shared.csproj", "{FC30A886-8864-40BD-BD91-516C216255C2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{9F8FF924-D7F1-45AE-AFC2-74883859776C}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		choco_packages.json = choco_packages.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

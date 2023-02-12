@@ -2,12 +2,13 @@
 
 public static class Constants
 {
+    public const string ProfileName = "Microsoft.PowerShell_profile.ps1";
+
     public static class Paths
     {
         public const string Repo = "C:/Repo";
         public const string Software = "C:/Downloads/Software";
-        public const string ProjectPath = $"{Repo}/WindowsAutomation.InitSetuper/Software";
+
+        public static string WorkingDir => Environment.CurrentDirectory;
     }
-    
-    public const string ProfileName = "Microsoft.PowerShell_profile.ps1";
 }

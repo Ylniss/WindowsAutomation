@@ -8,7 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Installers\Choco" />
+        <ProjectReference Include="..\WindowsAutomation.Shared\WindowsAutomation.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CliWrap" Version="3.6.0" />
+    </ItemGroup>
+
+    <Target Name="CopyChocoPackages" AfterTargets="AfterBuild">
+        <Copy SourceFiles="..\choco_packages.json" DestinationFolder="$(OutDir)" />
+    </Target>
+    <Target Name="CopyChocoPackagesOnPublish" AfterTargets="Publish">
+        <Copy SourceFiles="..\choco_packages.json" DestinationFolder="$(PublishDir)" />
+    </Target>
 
 </Project>

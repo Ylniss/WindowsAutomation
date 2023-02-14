@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.InitSetuper", "WindowsAutomation.InitSetuper\WindowsAutomation.InitSetuper.csproj", "{666DBF21-EFEC-45E5-8FFD-4591C300ABDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.InitAll.Cli", "WindowsAutomation.InitAll.Cli\WindowsAutomation.InitAll.Cli.csproj", "{666DBF21-EFEC-45E5-8FFD-4591C300ABDF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.Shared", "WindowsAutomation.Shared\WindowsAutomation.Shared.csproj", "{FC30A886-8864-40BD-BD91-516C216255C2}"
 EndProject
@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		.gitignore = .gitignore
 		choco_packages.json = choco_packages.json
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InitAll", "InitAll", "{5FC64A18-0F2D-475F-80BF-770F03CD1D36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.InitAll.Application", "WindowsAutomation.InitAll.Application\WindowsAutomation.InitAll.Application.csproj", "{2A3DC31B-CFF2-4587-883A-5965607836B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +28,13 @@ Global
 		{FC30A886-8864-40BD-BD91-516C216255C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC30A886-8864-40BD-BD91-516C216255C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC30A886-8864-40BD-BD91-516C216255C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A3DC31B-CFF2-4587-883A-5965607836B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A3DC31B-CFF2-4587-883A-5965607836B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A3DC31B-CFF2-4587-883A-5965607836B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A3DC31B-CFF2-4587-883A-5965607836B3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{666DBF21-EFEC-45E5-8FFD-4591C300ABDF} = {5FC64A18-0F2D-475F-80BF-770F03CD1D36}
+		{2A3DC31B-CFF2-4587-883A-5965607836B3} = {5FC64A18-0F2D-475F-80BF-770F03CD1D36}
 	EndGlobalSection
 EndGlobal

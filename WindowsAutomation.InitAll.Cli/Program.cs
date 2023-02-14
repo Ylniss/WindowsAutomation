@@ -1,4 +1,4 @@
-﻿using WindowsAutomation.InitSetuper.Installers.Choco;
+﻿using WindowsAutomation.InitAll.Application.Installers.Choco;
 
 Console.WriteLine(" ---------- Running Windows initialization script ---------- ");
 try

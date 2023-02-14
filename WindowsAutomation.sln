@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InitAll", "InitAll", "{5FC6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAutomation.InitAll.Application", "WindowsAutomation.InitAll.Application\WindowsAutomation.InitAll.Application.csproj", "{2A3DC31B-CFF2-4587-883A-5965607836B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{E946FFB9-4BA9-4F07-8AD1-46BFF2FCFB38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{666DBF21-EFEC-45E5-8FFD-4591C300ABDF} = {5FC64A18-0F2D-475F-80BF-770F03CD1D36}
 		{2A3DC31B-CFF2-4587-883A-5965607836B3} = {5FC64A18-0F2D-475F-80BF-770F03CD1D36}
+		{FC30A886-8864-40BD-BD91-516C216255C2} = {E946FFB9-4BA9-4F07-8AD1-46BFF2FCFB38}
 	EndGlobalSection
 EndGlobal

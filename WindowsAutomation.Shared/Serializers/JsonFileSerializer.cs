@@ -2,9 +2,9 @@
 
 namespace WindowsAutomation.Shared;
 
-public static class Serialization
+public class JsonFileSerializer : IFileSerializer
 {
-    public static T DeserializeFromFile<T>(string path)
+    public T? DeserializeFromFile<T>(string path)
     {
         using var sr = new StreamReader(path);
 

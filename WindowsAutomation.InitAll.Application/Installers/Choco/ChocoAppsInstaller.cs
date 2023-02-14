@@ -1,21 +1,17 @@
 ﻿using CliWrap;
-using WindowsAutomation.Shared;
 
 namespace WindowsAutomation.InitAll.Application.Installers.Choco;
 
-public class ChocoAppsInstaller
+public class ChocoAppsInstaller : IInstaller
 {
-    private const string _packagesFileName = "choco_packages.json";
     private readonly string[] _packages;
 
-    private readonly IDictionary<string, bool> _packageFindStatuses = new Dictionary<string, bool>();
-
-    public ChocoAppsInstaller()
+    public ChocoAppsInstaller(IPackageProvider packageProvider)
     {
-        _packages = LoadPackagesFromJsonFile();
+        _packages = packageProvider.LoadPackages().ToArray();
     }
 
-    public async Task<bool> CheckPackages(Action<KeyValuePair<string, bool>>? afterCheck = null)
+    public async Task<bool> CheckPackages(Action<string, bool>? afterCheck = null)
     {
         var anyNotFound = true;
 
@@ -29,25 +25,21 @@ public class ChocoAppsInstaller
 
             var found = result.ExitCode == 0;
             if (!found) anyNotFound = found;
-            afterCheck?.Invoke(new KeyValuePair<string, bool>(package, found));
+            afterCheck?.Invoke(package, found);
         }
 
         return anyNotFound;
     }
 
-    private async Task<(string package, CommandResult result)> ChocoFindPackage(string package)
+    public Task InstallPackages(Action<string>? onInstall = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static async Task<(string package, CommandResult result)> ChocoFindPackage(string package)
     {
         var chocoCmd = Cli.Wrap("choco");
         return (package, await chocoCmd.WithArguments(new[] { "find", $"{package}" })
             .ExecuteAsync().Task);
-    }
-
-    private string[] LoadPackagesFromJsonFile()
-    {
-        var packagesPath = $"""{Constants.Paths.WorkingDir}\{_packagesFileName}""";
-        if (!File.Exists(packagesPath))
-            File.AppendAllText(packagesPath, "[]");
-
-        return Serialization.DeserializeFromFile<string[]>(packagesPath);
     }
 }

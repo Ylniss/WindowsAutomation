@@ -6,12 +6,7 @@ using WindowsAutomation.InitAll.Cli;
 Console.WriteLine(" ---------- Running Windows initialization script ---------- ");
 
 using var host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        services.AddApplicationServices();
-        services.AddInstallerServices();
-        services.AddSharedServices();
-    })
+    .ConfigureServices(services => { services.AddApplicationServices().AddInstallerServices().AddSharedServices(); })
     .Build();
 
 var serviceProvider = host.Services;
@@ -22,12 +17,19 @@ var provider = serviceScope.ServiceProvider;
 try
 {
     var initAllRunner = provider.GetService<IInitAllRunner>();
+
+    if (initAllRunner is WindowsInitAllRunner windowsInitAllRunner)
+    {
+        windowsInitAllRunner.BeforeInstallChoco = ConsoleBeforeChocoInstall;
+        windowsInitAllRunner.OnInstallChocoOutput = ConsoleChocoInstallOutput;
+    }
+
     initAllRunner.BeforePackageStatusSet = ConsoleCheckingPackages;
     initAllRunner.OnPackageStatusSet = ConsoleWritePackageStatus;
     initAllRunner.OnPackageNotFound = ConsolePackagesNotFound;
     initAllRunner.AskQuestionYesNoToContinueOnNotFoundPackages = ConsoleAskQuestionYesNo;
 
-    await initAllRunner.RunCoreLogic(provider);
+    await initAllRunner.RunCoreLogic();
 }
 catch (Exception e)
 {
@@ -35,19 +37,21 @@ catch (Exception e)
     throw;
 }
 
-static void ConsoleCheckingPackages()
-{
-    Console.WriteLine("Checking choco_packages.json...");
-}
+static void ConsoleBeforeChocoInstall() =>
+    Console.WriteLine("Installing Chocolatey...");
 
-static void ConsolePackagesNotFound()
-{
+static void ConsoleChocoInstallOutput(string scriptOutput) =>
+    Console.WriteLine(scriptOutput);
+
+static void ConsoleCheckingPackages() =>
+    Console.WriteLine("Checking choco_packages.json...");
+
+static void ConsolePackagesNotFound() =>
     Console.WriteLine("Failed to find some packages.");
-}
 
 static bool ConsoleAskQuestionYesNo(string question)
 {
-    Console.WriteLine(question);
+    Console.WriteLine($"{question} [y/n]:");
 
     while (true)
     {
@@ -61,7 +65,5 @@ static bool ConsoleAskQuestionYesNo(string question)
     }
 }
 
-static void ConsoleWritePackageStatus(string package, bool found)
-{
+static void ConsoleWritePackageStatus(string package, bool found) =>
     Console.WriteLine($"{package}: " + (found ? "OK" : "NOT FOUND"));
-}

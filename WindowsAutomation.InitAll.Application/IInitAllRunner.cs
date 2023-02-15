@@ -10,5 +10,5 @@ public interface IInitAllRunner
     public Action<string>? OnPackageInstall { get; set; }
     public Action? BeforeExitInitRunner { get; set; }
 
-    Task RunCoreLogic(IServiceProvider provider);
+    Task RunCoreLogic();
 }

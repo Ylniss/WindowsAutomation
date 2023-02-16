@@ -22,14 +22,12 @@ public class ChocoAppsInstaller : IPackageInstaller
     public async Task InstallChoco(Action<string>? onInstallChocoScriptOutput = null)
     {
         var chocoInstallationScript = await _webDownloader.DownloadContent(ChocoInstallUri);
-
-        await foreach (var output in _shellRunner.RunScript(chocoInstallationScript))
-            onInstallChocoScriptOutput?.Invoke(output);
+        _shellRunner.RunScript(chocoInstallationScript, onInstallChocoScriptOutput);
     }
 
     public async Task<bool> CheckPackages(Action<string, bool>? afterCheck = null)
     {
-        var anyNotFound = true;
+        var anyNotFound = false;
 
         var findPackageTasks = _packages.Select(ChocoFindPackage).ToList();
 
@@ -40,16 +38,23 @@ public class ChocoAppsInstaller : IPackageInstaller
             var (package, result) = await finishedTask;
 
             var found = result.ExitCode == 0;
-            if (!found) anyNotFound = found;
+            if (!found) anyNotFound = true;
             afterCheck?.Invoke(package, found);
         }
 
         return anyNotFound;
     }
 
-    public Task InstallPackages(Action<string>? onInstall = null)
+    public void InstallPackages(Action<double>? progress = null, Action<string>? onInstall = null)
     {
-        throw new NotImplementedException();
+        var i = 0;
+        foreach (var package in _packages)
+        {
+            progress?.Invoke((double)i / _packages.Length);
+
+            _shellRunner.RunScript($"choco install {package} -y --acceptlicense --force", onInstall);
+            ++i;
+        }
     }
 
     private static async Task<(string package, CommandResult result)> ChocoFindPackage(string package)

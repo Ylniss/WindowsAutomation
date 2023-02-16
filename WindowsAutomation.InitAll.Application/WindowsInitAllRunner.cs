@@ -15,6 +15,7 @@ public class WindowsInitAllRunner : IInitAllRunner
     public Func<string, bool>? AskQuestionYesNoToContinueOnNotFoundPackages { get; set; }
 
     public Action? BeforeInstallPackages { get; set; }
+    public Action<double>? OnPackageInstallProgress { get; set; }
     public Action<string>? OnPackageInstall { get; set; }
 
     public Action? BeforeExitInitRunner { get; set; }
@@ -37,9 +38,9 @@ public class WindowsInitAllRunner : IInitAllRunner
 
 
         BeforePackageStatusSet?.Invoke();
-        var allPackagesFound = await _packageInstaller.CheckPackages(OnPackageStatusSet);
+        var somePackagesNotFound = await _packageInstaller.CheckPackages(OnPackageStatusSet);
 
-        if (!allPackagesFound)
+        if (somePackagesNotFound)
         {
             OnPackageNotFound?.Invoke();
             var yes = AskQuestionYesNoToContinueOnNotFoundPackages?.Invoke("Wish to continue?");
@@ -51,6 +52,6 @@ public class WindowsInitAllRunner : IInitAllRunner
         }
 
         BeforeInstallPackages?.Invoke();
-        await _packageInstaller.InstallPackages(OnPackageInstall);
+        _packageInstaller.InstallPackages(OnPackageInstallProgress, OnPackageInstall);
     }
 }

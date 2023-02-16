@@ -3,5 +3,5 @@
 public interface IPackageInstaller
 {
     Task<bool> CheckPackages(Action<string, bool>? afterCheck = null);
-    Task InstallPackages(Action<string>? onInstall = null);
+    void InstallPackages(Action<double>? progress = null, Action<string>? onInstall = null);
 }

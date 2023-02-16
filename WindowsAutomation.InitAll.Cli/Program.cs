@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.PowerShell.Commands;
 using WindowsAutomation.InitAll.Application;
 using WindowsAutomation.InitAll.Cli;
 
@@ -18,40 +19,38 @@ try
 {
     var initAllRunner = provider.GetService<IInitAllRunner>();
 
+    if (initAllRunner is null) throw new ApplicationException("IInitAllRunner not injected properly.");
+
     if (initAllRunner is WindowsInitAllRunner windowsInitAllRunner)
     {
-        windowsInitAllRunner.BeforeInstallChoco = ConsoleBeforeChocoInstall;
-        windowsInitAllRunner.OnInstallChocoOutput = ConsoleChocoInstallOutput;
+        windowsInitAllRunner.BeforeInstallChoco = () => Console.WriteLine("Installing Chocolatey...");
+        windowsInitAllRunner.OnInstallChocoOutput = scriptOutput => Console.WriteLine(scriptOutput);
     }
 
-    initAllRunner.BeforePackageStatusSet = ConsoleCheckingPackages;
-    initAllRunner.OnPackageStatusSet = ConsoleWritePackageStatus;
-    initAllRunner.OnPackageNotFound = ConsolePackagesNotFound;
+    initAllRunner.BeforePackageStatusSet = () => Console.WriteLine("Checking choco_packages.json...");
+    initAllRunner.OnPackageStatusSet =
+        (package, found) => Console.WriteLine($"{package}: " + (found ? "OK" : "NOT FOUND"));
+
+    initAllRunner.OnPackageNotFound = () => Console.WriteLine("Failed to find some packages.");
     initAllRunner.AskQuestionYesNoToContinueOnNotFoundPackages = ConsoleAskQuestionYesNo;
+
+    initAllRunner.BeforeInstallPackages = () => Console.WriteLine("Installing choco packages...");
+    initAllRunner.OnPackageInstallProgress = ConsoleProgressBar;
+    initAllRunner.OnPackageInstall = ConsoleChocoInstallOutput;
+
+    initAllRunner.BeforeExitInitRunner = () => Console.WriteLine("\nInitialization finished");
 
     await initAllRunner.RunCoreLogic();
 }
 catch (Exception e)
 {
-    Console.WriteLine($"Error occured during initialization:/n{e.Message}");
+    Console.WriteLine($"Error occured during initialization:\n{e.Message}");
     throw;
 }
 
-static void ConsoleBeforeChocoInstall() =>
-    Console.WriteLine("Installing Chocolatey...");
-
-static void ConsoleChocoInstallOutput(string scriptOutput) =>
-    Console.WriteLine(scriptOutput);
-
-static void ConsoleCheckingPackages() =>
-    Console.WriteLine("Checking choco_packages.json...");
-
-static void ConsolePackagesNotFound() =>
-    Console.WriteLine("Failed to find some packages.");
-
 static bool ConsoleAskQuestionYesNo(string question)
 {
-    Console.WriteLine($"{question} [y/n]:");
+    Console.Write($"{question} [y/n]: ");
 
     while (true)
     {
@@ -65,5 +64,21 @@ static bool ConsoleAskQuestionYesNo(string question)
     }
 }
 
-static void ConsoleWritePackageStatus(string package, bool found) =>
-    Console.WriteLine($"{package}: " + (found ? "OK" : "NOT FOUND"));
+void ConsoleProgressBar(double progress)
+{
+    var myProgress = new WriteProgressCommand
+    {
+        Activity = "Running . . .",
+        Status = $"Running {progress}"
+    };
+
+    myProgress.InvokeCommand();
+}
+
+static void ConsoleChocoInstallOutput(string output)
+{
+    if (output.Contains("Progress: "))
+        Console.Write($"\r{output}\t");
+    else
+        Console.WriteLine(output);
+}

@@ -7,6 +7,7 @@ public interface IInitAllRunner
     public Action? OnPackageNotFound { get; set; }
     public Func<string, bool>? AskQuestionYesNoToContinueOnNotFoundPackages { get; set; }
     public Action? BeforeInstallPackages { get; set; }
+    public Action<double>? OnPackageInstallProgress { get; set; }
     public Action<string>? OnPackageInstall { get; set; }
     public Action? BeforeExitInitRunner { get; set; }
 

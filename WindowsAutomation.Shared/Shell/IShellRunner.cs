@@ -2,5 +2,5 @@
 
 public interface IShellRunner
 {
-    IAsyncEnumerable<string> RunScript(string script);
+    void RunScript(string script, Action<string>? onProgress = null);
 }

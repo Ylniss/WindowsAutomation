@@ -1,46 +1,23 @@
 ﻿using WindowsAutomation.InitAll.Application.Installers;
-using WindowsAutomation.Shared.Events;
 
 namespace WindowsAutomation.InitAll.Application;
 
 public class WindowsInitAllRunner : IInitAllRunner
 {
-    public event EventHandler? BeforeInstallChoco;
-    public event EventHandler<string>? OnInstallChocoOutput;
-
-    public ActionEvents OnInstallChoco;
-    public event EventHandler? BeforeInstallPackages;
-    public event EventHandler<string>? OnPackageInstall;
-    public event EventHandler? BeforeExitInitRunner;
-    public event EventHandler<double>? OnDownloadProgress;
-
-
-    private readonly IEnumerable<IPackageInstaller> _packageInstallers;
+    public IEnumerable<IPackageInstaller> PackageInstallers { get; }
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers)
     {
-        _packageInstallers = packageInstallers;
+        PackageInstallers = packageInstallers;
     }
 
     public async Task RunCoreLogic()
     {
-        foreach (var installer in _packageInstallers)
-        {
-            if (installer is ChocoAppsInstaller chocoAppsInstaller)
-            {
-                BeforeInstallChoco?.Invoke(this, EventArgs.Empty);
-                await chocoAppsInstaller.InstallChoco(OnInstallChocoOutput);
-            }
+        foreach (var installer in PackageInstallers)
+            // if (installer is ChocoAppsInstaller chocoAppsInstaller)
+            //     await chocoAppsInstaller.InstallChoco();
+            await installer.InstallPackages();
 
-            if (installer is MyAppsInstaller myAppsInstaller) myAppsInstaller.OnDownloadProgress += OnDownloadProgress;
-
-            if (installer is not ChocoAppsInstaller) // IN THAT IF ONLY FOR TESTING
-            {
-                BeforeInstallPackages?.Invoke(this, EventArgs.Empty);
-                await installer.InstallPackages(OnPackageInstall);
-            }
-        }
-
-        BeforeExitInitRunner?.Invoke(this, EventArgs.Empty);
+        //BeforeExitInitRunner?.Invoke(this, EventArgs.Empty);
     }
 }

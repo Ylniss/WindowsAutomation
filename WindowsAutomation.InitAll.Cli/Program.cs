@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reactive.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WindowsAutomation.InitAll.Application;
+using WindowsAutomation.InitAll.Application.Installers;
 using WindowsAutomation.InitAll.Cli;
+using WindowsAutomation.Shared;
 
 Console.WriteLine(" ---------- Running Windows initialization script ---------- ");
 
@@ -20,7 +23,7 @@ try
 
     if (initAllRunner is null) throw new ApplicationException("IInitAllRunner not injected properly.");
 
-    SetupInitAllConsoleActions(initAllRunner);
+    SetupConsoleEvents(initAllRunner);
     await initAllRunner.RunCoreLogic();
 }
 catch (Exception e)
@@ -29,20 +32,38 @@ catch (Exception e)
     throw;
 }
 
-static void SetupInitAllConsoleActions(IInitAllRunner initAllRunner)
+static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 {
-    if (initAllRunner is WindowsInitAllRunner windowsInitAllRunner)
+    var chocoAppsInstaller =
+        initAllRunner.PackageInstallers.Single(installer => installer is ChocoAppsInstaller) as ChocoAppsInstaller;
+
+    chocoAppsInstaller?.WhenInstallStarted.Where(config => config.Contains(Constants.ChocoPackagesConfig))
+        .Subscribe(config =>
+            Console.WriteLine($"Installation from {config} started..."));
+
+    chocoAppsInstaller?.WhenInstallStarted.Where(uri => !uri.Contains(Constants.ChocoPackagesConfig))
+        .Subscribe(config =>
+            Console.WriteLine("Downloading chocolatey"));
+
+    chocoAppsInstaller?.WhenChocoScriptOutputReceived?.Subscribe(ConsolePackageInstallOutput);
+
+    chocoAppsInstaller?.WhenDownloadStarted?.Subscribe(uri =>
+        Console.WriteLine($"Download from {uri} started..."));
+
+    chocoAppsInstaller?.WhenDownloadProgressReceived?.Subscribe(progress =>
     {
-        windowsInitAllRunner.BeforeInstallChoco += (_, _) => Console.WriteLine("\nInstalling Chocolatey...");
-        windowsInitAllRunner.OnInstallChocoOutput += (_, output) => Console.WriteLine(output);
-    }
+        if (progress is not null)
+            Console.Write($"\rDownload progress: {progress * 100: 0.00}%");
+    });
 
-    initAllRunner.BeforeInstallPackages += (_, _) => Console.WriteLine("\nInstalling choco packages...");
-    initAllRunner.OnPackageInstall += (_, output) => ConsolePackageInstallOutput(output);
 
-    initAllRunner.OnDownloadProgress += (_, progress) => Console.Write($"\rDownload progress: {progress * 100: 0.00}%");
+    var myAppsInstaller =
+        initAllRunner.PackageInstallers.Single(installer => installer is MyAppsInstaller) as MyAppsInstaller;
 
-    initAllRunner.BeforeExitInitRunner += (_, _) => Console.WriteLine("\nInitialization finished");
+    myAppsInstaller?.WhenInstallStarted.Subscribe(package =>
+        Console.WriteLine($"\n{package} installation started..."));
+
+    //initAllRunner.BeforeExitInitRunner += (_, _) => Console.WriteLine("\nInitialization finished");
 }
 
 

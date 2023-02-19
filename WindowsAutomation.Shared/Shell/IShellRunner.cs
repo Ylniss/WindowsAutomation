@@ -2,6 +2,10 @@
 
 public interface IShellRunner
 {
-    void RunScript(string script, EventHandler<string>? onOutput = null);
-    Task RunScriptFromWeb(string scriptUri, EventHandler<string>? onOutput = null);
+    IObservable<string> WhenOutputReceived { get; }
+    public IObservable<string>? WhenDownloadStarted { get; }
+    public IObservable<double?>? WhenDownloadProgressReceived { get; }
+
+    void RunScript(string script);
+    Task RunScriptFromWeb(string scriptUri);
 }

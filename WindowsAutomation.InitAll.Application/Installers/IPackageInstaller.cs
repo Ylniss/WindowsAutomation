@@ -1,8 +1,11 @@
-﻿using WindowsAutomation.Shared.Events;
-
-namespace WindowsAutomation.InitAll.Application.Installers;
+﻿namespace WindowsAutomation.InitAll.Application.Installers;
 
 public interface IPackageInstaller
 {
-    Task InstallPackages<TProgress>(ProgressActionEvents<TProgress>? events);
+    public IObservable<string> WhenInstallStarted { get; }
+
+    public IObservable<string>? WhenDownloadStarted { get; }
+    public IObservable<double?>? WhenDownloadProgressReceived { get; }
+
+    Task InstallPackages();
 }

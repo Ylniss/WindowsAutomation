@@ -4,6 +4,7 @@ using WindowsAutomation.InitAll.Application.Installers;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
+using WindowsAutomation.Shared.Web.Downloader;
 
 namespace WindowsAutomation.InitAll.Cli;
 
@@ -26,6 +27,7 @@ public static class ConfigureServices
 
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
+        services.AddScoped<IMyHttpClientFactory, MyHttpClientFactory>();
         services.AddScoped<IShellRunner, PowerShellRunner>();
         services.AddScoped<IWebDownloader, WebDownloader>();
         services.AddScoped<IRegexExtractor, RegexExtractor>();

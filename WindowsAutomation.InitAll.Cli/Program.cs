@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.PowerShell.Commands;
 using WindowsAutomation.InitAll.Application;
 using WindowsAutomation.InitAll.Cli;
 
@@ -21,25 +20,7 @@ try
 
     if (initAllRunner is null) throw new ApplicationException("IInitAllRunner not injected properly.");
 
-    if (initAllRunner is WindowsInitAllRunner windowsInitAllRunner)
-    {
-        windowsInitAllRunner.BeforeInstallChoco = () => Console.WriteLine("Installing Chocolatey...");
-        windowsInitAllRunner.OnInstallChocoOutput = scriptOutput => Console.WriteLine(scriptOutput);
-    }
-
-    initAllRunner.BeforePackageStatusSet = () => Console.WriteLine("Checking choco_packages.json...");
-    initAllRunner.OnPackageStatusSet =
-        (package, found) => Console.WriteLine($"{package}: " + (found ? "OK" : "NOT FOUND"));
-
-    initAllRunner.OnPackageNotFound = () => Console.WriteLine("Failed to find some packages.");
-    initAllRunner.AskQuestionYesNoToContinueOnNotFoundPackages = ConsoleAskQuestionYesNo;
-
-    initAllRunner.BeforeInstallPackages = () => Console.WriteLine("Installing choco packages...");
-    initAllRunner.OnPackageInstallProgress = ConsoleProgressBar;
-    initAllRunner.OnPackageInstall = ConsoleChocoInstallOutput;
-
-    initAllRunner.BeforeExitInitRunner = () => Console.WriteLine("\nInitialization finished");
-
+    SetupInitAllConsoleActions(initAllRunner);
     await initAllRunner.RunCoreLogic();
 }
 catch (Exception e)
@@ -48,37 +29,27 @@ catch (Exception e)
     throw;
 }
 
-static bool ConsoleAskQuestionYesNo(string question)
+static void SetupInitAllConsoleActions(IInitAllRunner initAllRunner)
 {
-    Console.Write($"{question} [y/n]: ");
-
-    while (true)
+    if (initAllRunner is WindowsInitAllRunner windowsInitAllRunner)
     {
-        var key = Console.ReadKey();
-
-        return key.Key switch
-        {
-            ConsoleKey.Y => true,
-            _ => false
-        };
+        windowsInitAllRunner.BeforeInstallChoco += (_, _) => Console.WriteLine("\nInstalling Chocolatey...");
+        windowsInitAllRunner.OnInstallChocoOutput += (_, output) => Console.WriteLine(output);
     }
+
+    initAllRunner.BeforeInstallPackages += (_, _) => Console.WriteLine("\nInstalling choco packages...");
+    initAllRunner.OnPackageInstall += (_, output) => ConsoleChocoInstallOutput(output);
+
+    initAllRunner.OnDownloadProgress += (_, progress) => Console.Write($"\rDownload progress: {progress * 100: 0.00}&");
+
+    initAllRunner.BeforeExitInitRunner += (_, _) => Console.WriteLine("\nInitialization finished");
 }
 
-void ConsoleProgressBar(double progress)
-{
-    var myProgress = new WriteProgressCommand
-    {
-        Activity = "Running . . .",
-        Status = $"Running {progress}"
-    };
-
-    myProgress.InvokeCommand();
-}
 
 static void ConsoleChocoInstallOutput(string output)
 {
     if (output.Contains("Progress: "))
-        Console.Write($"\r{output}\t");
+        Console.Write($"\r{output}");
     else
         Console.WriteLine(output);
 }

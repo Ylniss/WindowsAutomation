@@ -1,4 +1,4 @@
-﻿namespace WindowsAutomation.Shared;
+﻿namespace WindowsAutomation.Shared.Serializers;
 
 public interface IFileSerializer
 {

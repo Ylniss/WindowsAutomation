@@ -1,12 +1,20 @@
 ﻿using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Microsoft.PowerShell;
+using WindowsAutomation.Shared.Web;
 
 namespace WindowsAutomation.Shared.Shell;
 
 public class PowerShellRunner : IShellRunner
 {
-    public void RunScript(string script, Action<string>? onOutput = null)
+    private readonly IWebDownloader _webDownloader;
+
+    public PowerShellRunner(IWebDownloader webDownloader)
+    {
+        _webDownloader = webDownloader;
+    }
+
+    public void RunScript(string script, EventHandler<string>? onOutput = null)
     {
         var initialSessionState = InitialSessionState.CreateDefault();
         initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
@@ -22,14 +30,20 @@ public class PowerShellRunner : IShellRunner
         result.AsyncWaitHandle.WaitOne();
     }
 
-    private void RegisterOutputEventHandler(PSDataCollection<PSObject> output, Action<string> onOutput)
+    public async Task RunScriptFromWeb(string scriptUri, EventHandler<string>? onOutput = null)
+    {
+        var chocoInstallationScript = await _webDownloader.DownloadContent(scriptUri);
+        RunScript(chocoInstallationScript, onOutput);
+    }
+
+    private void RegisterOutputEventHandler(PSDataCollection<PSObject> output, EventHandler<string> onOutput)
     {
         output.DataAdded += (sender, e) =>
         {
             if (sender is not PSDataCollection<PSObject> records) return;
             var newRecord = records[e.Index];
 
-            onOutput.Invoke(newRecord.BaseObject.ToString() ?? string.Empty);
+            onOutput.Invoke(this, newRecord.BaseObject.ToString() ?? string.Empty);
         };
     }
 }

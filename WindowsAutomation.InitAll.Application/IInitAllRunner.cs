@@ -2,14 +2,12 @@
 
 public interface IInitAllRunner
 {
-    public Action? BeforePackageStatusSet { get; set; }
-    public Action<string, bool>? OnPackageStatusSet { get; set; }
-    public Action? OnPackageNotFound { get; set; }
-    public Func<string, bool>? AskQuestionYesNoToContinueOnNotFoundPackages { get; set; }
-    public Action? BeforeInstallPackages { get; set; }
-    public Action<double>? OnPackageInstallProgress { get; set; }
-    public Action<string>? OnPackageInstall { get; set; }
-    public Action? BeforeExitInitRunner { get; set; }
+    public event EventHandler? BeforeInstallChoco;
+    public event EventHandler<string>? OnInstallChocoOutput;
+    public event EventHandler? BeforeInstallPackages;
+    public event EventHandler<string>? OnPackageInstall;
+    public event EventHandler? BeforeExitInitRunner;
+    public event EventHandler<double>? OnDownloadProgress;
 
     Task RunCoreLogic();
 }

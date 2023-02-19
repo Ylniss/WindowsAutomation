@@ -5,26 +5,26 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>WindowsAutomation.InitSetuper</RootNamespace>
+        <RootNamespace>WindowsAutomation.InitAll.Cli</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\WindowsAutomation.InitAll.Application\WindowsAutomation.InitAll.Application.csproj" />
-        <ProjectReference Include="..\WindowsAutomation.Shared\WindowsAutomation.Shared.csproj" />
+        <ProjectReference Include="..\WindowsAutomation.InitAll.Application\WindowsAutomation.InitAll.Application.csproj"/>
+        <ProjectReference Include="..\WindowsAutomation.Shared\WindowsAutomation.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0"/>
     </ItemGroup>
 
     <Target Name="CopyChocoPackages" AfterTargets="AfterBuild">
-        <Copy SourceFiles="..\choco_packages.json" DestinationFolder="$(OutDir)" />
+        <Copy SourceFiles="..\choco_packages.config" DestinationFolder="$(OutDir)"/>
     </Target>
     <Target Name="CopyChocoPackagesOnPublish" AfterTargets="Publish">
-        <Copy SourceFiles="..\choco_packages.json" DestinationFolder="$(PublishDir)" />
+        <Copy SourceFiles="..\choco_packages.config" DestinationFolder="$(PublishDir)"/>
     </Target>
-
+    
 </Project>

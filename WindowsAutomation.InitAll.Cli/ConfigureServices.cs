@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using WindowsAutomation.InitAll.Application;
 using WindowsAutomation.InitAll.Application.Installers;
-using WindowsAutomation.InitAll.Application.Installers.Choco;
-using WindowsAutomation.Shared;
+using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
 
@@ -20,16 +19,16 @@ public static class ConfigureServices
     public static IServiceCollection AddInstallerServices(this IServiceCollection services)
     {
         services.AddScoped<IPackageInstaller, ChocoAppsInstaller>();
-        services.AddScoped<IPackageProvider, JsonFilePackageProvider>();
+        services.AddScoped<IPackageInstaller, MyAppsInstaller>();
 
         return services;
     }
 
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
-        services.AddScoped<IFileSerializer, JsonFileSerializer>();
         services.AddScoped<IShellRunner, PowerShellRunner>();
         services.AddScoped<IWebDownloader, WebDownloader>();
+        services.AddScoped<IRegexExtractor, RegexExtractor>();
 
         return services;
     }

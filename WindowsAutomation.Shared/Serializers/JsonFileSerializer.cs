@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace WindowsAutomation.Shared;
+namespace WindowsAutomation.Shared.Serializers;
 
 public class JsonFileSerializer : IFileSerializer
 {

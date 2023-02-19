@@ -1,57 +1,43 @@
 ﻿using WindowsAutomation.InitAll.Application.Installers;
-using WindowsAutomation.InitAll.Application.Installers.Choco;
 
 namespace WindowsAutomation.InitAll.Application;
 
 public class WindowsInitAllRunner : IInitAllRunner
 {
-    public Action? BeforeInstallChoco { get; set; }
-    public Action<string>? OnInstallChocoOutput { get; set; }
-
-    public Action? BeforePackageStatusSet { get; set; }
-    public Action<string, bool>? OnPackageStatusSet { get; set; }
-
-    public Action? OnPackageNotFound { get; set; }
-    public Func<string, bool>? AskQuestionYesNoToContinueOnNotFoundPackages { get; set; }
-
-    public Action? BeforeInstallPackages { get; set; }
-    public Action<double>? OnPackageInstallProgress { get; set; }
-    public Action<string>? OnPackageInstall { get; set; }
-
-    public Action? BeforeExitInitRunner { get; set; }
-
-    private readonly IPackageInstaller _packageInstaller;
+    public event EventHandler? BeforeInstallChoco;
+    public event EventHandler<string>? OnInstallChocoOutput;
+    public event EventHandler? BeforeInstallPackages;
+    public event EventHandler<string>? OnPackageInstall;
+    public event EventHandler? BeforeExitInitRunner;
+    public event EventHandler<double>? OnDownloadProgress;
 
 
-    public WindowsInitAllRunner(IPackageInstaller packageInstaller)
+    private readonly IEnumerable<IPackageInstaller> _packageInstallers;
+
+    public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers)
     {
-        _packageInstaller = packageInstaller;
+        _packageInstallers = packageInstallers;
     }
 
     public async Task RunCoreLogic()
     {
-        if (_packageInstaller is ChocoAppsInstaller installer)
+        foreach (var installer in _packageInstallers)
         {
-            BeforeInstallChoco?.Invoke();
-            await installer.InstallChoco(OnInstallChocoOutput);
-        }
-
-
-        BeforePackageStatusSet?.Invoke();
-        var somePackagesNotFound = await _packageInstaller.CheckPackages(OnPackageStatusSet);
-
-        if (somePackagesNotFound)
-        {
-            OnPackageNotFound?.Invoke();
-            var yes = AskQuestionYesNoToContinueOnNotFoundPackages?.Invoke("Wish to continue?");
-            if (yes is not null or false)
+            if (installer is ChocoAppsInstaller chocoAppsInstaller)
             {
-                BeforeExitInitRunner?.Invoke();
-                return;
+                BeforeInstallChoco?.Invoke(this, EventArgs.Empty);
+                await chocoAppsInstaller.InstallChoco(OnInstallChocoOutput);
+            }
+
+            if (installer is MyAppsInstaller myAppsInstaller) myAppsInstaller.OnDownloadProgress += OnDownloadProgress;
+
+            if (installer is not ChocoAppsInstaller) // IN THAT IF ONLY FOR TESTING
+            {
+                BeforeInstallPackages?.Invoke(this, EventArgs.Empty);
+                await installer.InstallPackages(OnPackageInstall);
             }
         }
 
-        BeforeInstallPackages?.Invoke();
-        _packageInstaller.InstallPackages(OnPackageInstallProgress, OnPackageInstall);
+        BeforeExitInitRunner?.Invoke(this, EventArgs.Empty);
     }
 }

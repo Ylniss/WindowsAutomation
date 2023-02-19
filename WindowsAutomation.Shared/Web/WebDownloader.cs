@@ -1,26 +1,26 @@
 ﻿using System.Net.Http.Handlers;
 using WindowsAutomation.Shared.RegularExpression;
+using WindowsAutomation.Shared.RegularExpression.Dtos;
+using WindowsAutomation.Shared.Web.Dtos;
 
 namespace WindowsAutomation.Shared.Web;
-
-public record WebFileDownload(string Uri, string Destination, IProgress<double>? Progress);
 
 public class WebDownloader : IWebDownloader
 {
     private readonly IRegexExtractor _regexExtractor;
-    private readonly HttpClient _HttpClient;
+    private readonly HttpClient _httpClient;
 
-    private IProgress<double> _progress;
+    private IProgress<double>? _progress;
 
     public WebDownloader(IRegexExtractor regexExtractor)
     {
         _regexExtractor = regexExtractor;
-        _HttpClient = SetupProgressHandlers();
+        _httpClient = SetupProgressHandlers();
     }
 
     public async Task<string> DownloadContent(string uri)
     {
-        var response = await _HttpClient.GetAsync(uri);
+        var response = await _httpClient.GetAsync(uri);
         return await response.Content.ReadAsStringAsync();
     }
 
@@ -29,7 +29,7 @@ public class WebDownloader : IWebDownloader
         if (webFileDownload.Progress is not null)
             _progress = webFileDownload.Progress;
 
-        var stream = await _HttpClient.GetStreamAsync(webFileDownload.Uri);
+        var stream = await _httpClient.GetStreamAsync(webFileDownload.Uri);
 
         await using var fileStream = new FileStream(webFileDownload.Destination, FileMode.OpenOrCreate);
         await stream.CopyToAsync(fileStream);
@@ -37,7 +37,7 @@ public class WebDownloader : IWebDownloader
 
     public async Task ExtractLinkAndDownloadFile(WebFileDownload webFileDownload, RegexGroupNameMatch regex)
     {
-        var html = await DownloadContent(WebFileDownload.Uri);
+        var html = await DownloadContent(webFileDownload.Uri);
         var downloadUrl = _regexExtractor.Extract(html, regex);
 
         await DownloadFile(webFileDownload with { Uri = downloadUrl });

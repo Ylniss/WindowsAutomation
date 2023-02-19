@@ -1,37 +1,49 @@
 ﻿using WindowsAutomation.Shared;
-using WindowsAutomation.Shared.RegularExpression;
+using WindowsAutomation.Shared.Events;
+using WindowsAutomation.Shared.RegularExpression.Dtos;
 using WindowsAutomation.Shared.Web;
+using WindowsAutomation.Shared.Web.Dtos;
 
 namespace WindowsAutomation.InitAll.Application.Installers;
 
 public class MyAppsInstaller : IPackageInstaller
 {
     private readonly IWebDownloader _webDownloader;
-    private readonly IRegexExtractor _regexExtractor;
     private string _currentPackage = string.Empty;
 
-    public event EventHandler<double>? OnDownloadProgress;
 
-    public MyAppsInstaller(IWebDownloader webDownloader, IRegexExtractor regexExtractor)
+    public MyAppsInstaller(IWebDownloader webDownloader)
     {
         _webDownloader = webDownloader;
-        _regexExtractor = regexExtractor;
     }
 
-    public async Task InstallPackages(EventHandler<string>? beforeDownload = null)
+    public async Task InstallPackages(ProgressActionEvents? events)
     {
         _currentPackage = "nandeck";
-        beforeDownload?.Invoke(this, $"Downloading {_currentPackage}...");
+        events?.Before?.Invoke(this, $"Downloading {_currentPackage}...");
 
         Progress<double> progress = new();
-        progress.ProgressChanged += OnDownloadProgress;
+        progress.ProgressChanged += events?.Progress;
 
-        await _webDownloader.ExtractLinkAndDownloadFile(
-            new WebFileDownload("""https://www.nandeck.com/""",
-                $"""{Constants.Paths.ProgramFilesX86}\Nandeck\Nandeck.zip""", progress),
-            new RegexGroupNameMatch(
-                """Version\s\d+\.\d+\.\d+"\shref="(?<downloadurl>.*)"\srel="nofollow""",
-                "downloadurl"));
+        // await _webDownloader.ExtractLinkAndDownloadFile(
+        //     new WebFileDownload("""https://www.nandeck.com/""",
+        //         $"""{Constants.Paths.ProgramFilesX86}\Nandeck\Nandeck.zip""", progress),
+        //     new RegexGroupNameMatch(
+        //         """Version\s\d+\.\d+\.\d+"\shref="(?<downloadurl>.*)"\srel="nofollow""",
+        //         "downloadurl"));
+        try
+        {
+            await _webDownloader.ExtractLinkAndDownloadFile(
+                new WebFileDownload("""https://www.nandeck.com/""",
+                    $"""{Constants.Paths.ProgramFilesX86}\Nandeck\Nandeck.zip""", progress),
+                new RegexGroupNameMatch(
+                    """Version\s\d+\.\d+\.\d+"\shref="(?<downloadurle>.*)"\srel="nofollow""",
+                    "downloadurl"));
+        }
+        catch (InvalidOperationException ex)
+        {
+            events?.Error();
+        }
 
 
         var abc = 3;

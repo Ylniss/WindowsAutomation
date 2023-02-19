@@ -1,4 +1,5 @@
 ﻿using WindowsAutomation.InitAll.Application.Installers;
+using WindowsAutomation.Shared.Events;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -6,6 +7,8 @@ public class WindowsInitAllRunner : IInitAllRunner
 {
     public event EventHandler? BeforeInstallChoco;
     public event EventHandler<string>? OnInstallChocoOutput;
+
+    public ActionEvents OnInstallChoco;
     public event EventHandler? BeforeInstallPackages;
     public event EventHandler<string>? OnPackageInstall;
     public event EventHandler? BeforeExitInitRunner;

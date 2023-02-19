@@ -10,6 +10,7 @@
         <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
         <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.0-preview.1" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+        <PackageReference Include="System.Reactive" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

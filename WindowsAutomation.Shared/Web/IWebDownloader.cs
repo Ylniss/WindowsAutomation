@@ -1,4 +1,5 @@
-﻿using WindowsAutomation.Shared.RegularExpression;
+﻿using WindowsAutomation.Shared.RegularExpression.Dtos;
+using WindowsAutomation.Shared.Web.Dtos;
 
 namespace WindowsAutomation.Shared.Web;
 

@@ -38,15 +38,15 @@ static void SetupInitAllConsoleActions(IInitAllRunner initAllRunner)
     }
 
     initAllRunner.BeforeInstallPackages += (_, _) => Console.WriteLine("\nInstalling choco packages...");
-    initAllRunner.OnPackageInstall += (_, output) => ConsoleChocoInstallOutput(output);
+    initAllRunner.OnPackageInstall += (_, output) => ConsolePackageInstallOutput(output);
 
-    initAllRunner.OnDownloadProgress += (_, progress) => Console.Write($"\rDownload progress: {progress * 100: 0.00}&");
+    initAllRunner.OnDownloadProgress += (_, progress) => Console.Write($"\rDownload progress: {progress * 100: 0.00}%");
 
     initAllRunner.BeforeExitInitRunner += (_, _) => Console.WriteLine("\nInitialization finished");
 }
 
 
-static void ConsoleChocoInstallOutput(string output)
+static void ConsolePackageInstallOutput(string output)
 {
     if (output.Contains("Progress: "))
         Console.Write($"\r{output}");

@@ -1,13 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using WindowsAutomation.Shared.RegularExpression.Dtos;
 
 namespace WindowsAutomation.Shared.RegularExpression;
-
-public record RegexGroupNameMatch(string Pattern, string GroupName);
-
-public interface IRegexExtractor
-{
-    string Extract(string input, RegexGroupNameMatch regex);
-}
 
 public class RegexExtractor : IRegexExtractor
 {

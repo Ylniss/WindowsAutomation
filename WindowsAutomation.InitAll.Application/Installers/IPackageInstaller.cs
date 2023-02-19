@@ -1,6 +1,8 @@
-﻿namespace WindowsAutomation.InitAll.Application.Installers;
+﻿using WindowsAutomation.Shared.Events;
+
+namespace WindowsAutomation.InitAll.Application.Installers;
 
 public interface IPackageInstaller
 {
-    Task InstallPackages(EventHandler<string>? beforeDownload = null);
+    Task InstallPackages<TProgress>(ProgressActionEvents<TProgress>? events);
 }

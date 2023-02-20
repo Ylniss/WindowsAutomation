@@ -37,7 +37,7 @@ public class WebDownloader : IWebDownloader
 
     public async Task ExtractLinkAndDownloadFile(WebFileDownload webFileDownload, RegexGroupNameMatch regex)
     {
-        var html = await DownloadContent(WebFileDownload.Uri);
+        var html = await DownloadContent(webFileDownload.Uri);
         var downloadUrl = _regexExtractor.Extract(html, regex);
 
         await DownloadFile(webFileDownload with { Uri = downloadUrl });

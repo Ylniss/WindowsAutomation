@@ -1,8 +1,9 @@
-﻿namespace WindowsAutomation.Shared.Web;
+﻿using System.Reactive.Subjects;
+
+namespace WindowsAutomation.Shared.Web;
 
 public interface IMyHttpClientFactory
 {
-    IObservable<double?> WhenDownloadProgressReceived { get; }
-    IObservable<double?> WhenUploadProgressReceived { get; }
-    HttpClient CreateWithProgress();
+    HttpClient CreateWithProgress(ISubject<double?>? whenDownloadProgressReceived = null,
+        ISubject<double?>? whenUploadProgressReceived = null);
 }

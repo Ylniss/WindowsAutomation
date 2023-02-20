@@ -9,7 +9,7 @@ using WindowsAutomation.Shared;
 Console.WriteLine(" ---------- Running Windows initialization script ---------- ");
 
 using var host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services => { services.AddApplicationServices().AddInstallerServices().AddSharedServices(); })
+    .ConfigureServices(services => { services.AddApplicationServices().AddSharedServices(); })
     .Build();
 
 var serviceProvider = host.Services;

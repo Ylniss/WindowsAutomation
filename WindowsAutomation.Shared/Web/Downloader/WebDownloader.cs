@@ -12,14 +12,15 @@ public class WebDownloader : IWebDownloader
     private readonly HttpClient _httpClient;
 
     private readonly Subject<string> _whenDownloadStarted = new();
+    private readonly Subject<double?> _whenDownloadProgressReceived = new();
+
     public IObservable<string> WhenDownloadStarted => _whenDownloadStarted.AsObservable();
-    public IObservable<double?> WhenDownloadProgressReceived { get; }
+    public IObservable<double?> WhenDownloadProgressReceived => _whenDownloadProgressReceived.AsObservable();
 
     public WebDownloader(IRegexExtractor regexExtractor, IMyHttpClientFactory myHttpClientFactory)
     {
         _regexExtractor = regexExtractor;
-        WhenDownloadProgressReceived = myHttpClientFactory.WhenDownloadProgressReceived;
-        _httpClient = myHttpClientFactory.CreateWithProgress();
+        _httpClient = myHttpClientFactory.CreateWithProgress(_whenDownloadProgressReceived);
     }
 
     public async Task<string> DownloadContent(string uri)

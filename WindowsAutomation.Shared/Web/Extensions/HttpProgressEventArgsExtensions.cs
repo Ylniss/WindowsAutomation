@@ -8,6 +8,6 @@ public static class HttpProgressEventArgsExtensions
     {
         if (progress.TotalBytes == null) return null;
 
-        return (double)(progress.BytesTransferred / progress.TotalBytes);
+        return (double)progress.BytesTransferred / progress.TotalBytes;
     }
 }

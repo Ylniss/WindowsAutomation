@@ -14,11 +14,6 @@ public static class ConfigureServices
     {
         services.AddScoped<IInitAllRunner, WindowsInitAllRunner>();
 
-        return services;
-    }
-
-    public static IServiceCollection AddInstallerServices(this IServiceCollection services)
-    {
         services.AddScoped<IPackageInstaller, ChocoAppsInstaller>();
         services.AddScoped<IPackageInstaller, MyAppsInstaller>();
 

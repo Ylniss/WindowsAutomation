@@ -1,31 +1,21 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using WindowsAutomation.InitAll.Application;
-using WindowsAutomation.InitAll.Application.Installers;
+using WindowsAutomation.Shared.Compression;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
 using WindowsAutomation.Shared.Web.Downloader;
 
-namespace WindowsAutomation.InitAll.Cli;
+namespace WindowsAutomation.Shared;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-    {
-        services.AddScoped<IInitAllRunner, WindowsInitAllRunner>();
-
-        services.AddScoped<IPackageInstaller, ChocoAppsInstaller>();
-        services.AddScoped<IPackageInstaller, MyAppsInstaller>();
-
-        return services;
-    }
-
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
         services.AddScoped<IMyHttpClientFactory, MyHttpClientFactory>();
         services.AddScoped<IShellRunner, PowerShellRunner>();
         services.AddScoped<IWebDownloader, WebDownloader>();
         services.AddScoped<IRegexExtractor, RegexExtractor>();
+        services.AddScoped<IZipper, Zipper>();
 
         return services;
     }

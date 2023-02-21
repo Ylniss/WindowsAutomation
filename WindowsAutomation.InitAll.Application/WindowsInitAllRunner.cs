@@ -1,4 +1,4 @@
-﻿using WindowsAutomation.InitAll.Application.Installers;
+﻿using WindowsAutomation.InitAll.Application.PackageInstallers;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -13,10 +13,7 @@ public class WindowsInitAllRunner : IInitAllRunner
 
     public async Task RunCoreLogic()
     {
-        foreach (var installer in PackageInstallers)
-            // if (installer is ChocoAppsInstaller chocoAppsInstaller)
-            //     await chocoAppsInstaller.InstallChoco();
-            await installer.InstallPackages();
+        foreach (var installer in PackageInstallers) await installer.InstallPackages();
 
         //BeforeExitInitRunner?.Invoke(this, EventArgs.Empty);
     }

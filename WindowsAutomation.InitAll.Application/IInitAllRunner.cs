@@ -1,4 +1,4 @@
-﻿using WindowsAutomation.InitAll.Application.Installers;
+﻿using WindowsAutomation.InitAll.Application.PackageInstallers;
 
 namespace WindowsAutomation.InitAll.Application;
 

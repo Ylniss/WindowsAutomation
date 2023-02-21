@@ -1,8 +1,8 @@
-﻿namespace WindowsAutomation.InitAll.Application.Installers;
+﻿namespace WindowsAutomation.InitAll.Application.PackageInstallers;
 
 public interface IPackageInstaller
 {
-    public IObservable<string> WhenInstallStarted { get; }
+    public IObservable<PackageInstallationStep> WhenInstallStarted { get; }
 
     public IObservable<string>? WhenDownloadStarted { get; }
     public IObservable<double?>? WhenDownloadProgressReceived { get; }

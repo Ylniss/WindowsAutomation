@@ -25,6 +25,7 @@ try
 
     SetupConsoleEvents(initAllRunner);
     await initAllRunner.RunCoreLogic();
+    Console.WriteLine(" ---------- Windows initialization script finished ---------- ");
 }
 catch (Exception e)
 {
@@ -85,6 +86,4 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 
     myAppsInstaller?.WhenInstallStarted
         .Subscribe(step => { }, () => Console.WriteLine("Done."));
-
-//initAllRunner.BeforeExitInitRunner += (_, _) => Console.WriteLine("\nInitialization finished");
 }

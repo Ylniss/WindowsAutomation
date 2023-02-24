@@ -49,11 +49,11 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Subscribe(config =>
             Console.WriteLine("Downloading chocolatey"));
 
-    chocoAppsInstaller?.WhenChocoScriptOutputReceived
+    chocoAppsInstaller?.WhenSetupOutputReceived
         .Where(output => output.Contains("Progress: "))
         .Subscribe(output => Console.Write($"\r{output}"));
 
-    chocoAppsInstaller?.WhenChocoScriptOutputReceived
+    chocoAppsInstaller?.WhenSetupOutputReceived
         .Where(output => !output.Contains("Progress: "))
         .Subscribe(Console.WriteLine);
 
@@ -64,6 +64,7 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Where(progress => progress is not null)
         .Subscribe(progress =>
             Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
+
 
     var myAppsInstaller =
         initAllRunner.PackageInstallers.Single(installer => installer is MyPackageInstaller) as MyPackageInstaller;
@@ -83,6 +84,9 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Where(installationStep => installationStep.Step == InstallationStep.RunSetup)
         .Subscribe(package =>
             Console.WriteLine($"\n{package} installation started..."));
+
+    myAppsInstaller?.WhenSetupOutputReceived
+        .Subscribe(Console.WriteLine);
 
     myAppsInstaller?.WhenInstallStarted
         .Subscribe(step => { }, () => Console.WriteLine("Done."));

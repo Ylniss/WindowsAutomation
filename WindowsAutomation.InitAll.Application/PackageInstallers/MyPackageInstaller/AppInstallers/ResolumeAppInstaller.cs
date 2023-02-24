@@ -1,4 +1,6 @@
-﻿using WindowsAutomation.Shared;
+﻿using CliWrap;
+using CliWrap.Buffered;
+using WindowsAutomation.Shared;
 using WindowsAutomation.Shared.RegularExpression.Dtos;
 using WindowsAutomation.Shared.Web.Downloader;
 using WindowsAutomation.Shared.Web.Downloader.Dtos;
@@ -22,7 +24,11 @@ public class ResolumeAppInstaller : AppInstaller
 
         _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
 
-        throw new NotImplementedException();
+        var cmd = Cli.Wrap("cmd")
+            .WithArguments(a => a.Add("/c").Add("/SP-").Add("/VERYSILENT"));
+
+        var result = await cmd.ExecuteBufferedAsync();
+        _whenSetupOutputReceived.OnNext(result.StandardOutput);
     }
 
     private async Task DownloadApp()

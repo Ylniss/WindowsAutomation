@@ -10,6 +10,7 @@ public class MyPackageInstaller : IPackageInstaller
     public IObservable<PackageInstallationStep> WhenInstallStarted { get; }
     public IObservable<string>? WhenDownloadStarted { get; }
     public IObservable<double?>? WhenDownloadProgressReceived { get; }
+    public IObservable<string> WhenSetupOutputReceived { get; }
 
     public MyPackageInstaller(IEnumerable<AppInstaller> appInstallers)
     {
@@ -19,6 +20,7 @@ public class MyPackageInstaller : IPackageInstaller
         WhenDownloadStarted = installers.Select(appInstaller => appInstaller.WhenDownloadStarted).Merge();
         WhenDownloadProgressReceived =
             installers.Select(appInstaller => appInstaller.WhenDownloadProgressReceived).Merge();
+        WhenSetupOutputReceived = installers.Select(appInstaller => appInstaller.WhenSetupOutputReceived).Merge();
     }
 
     public async Task InstallPackages()

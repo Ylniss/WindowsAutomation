@@ -14,9 +14,13 @@ public abstract class AppInstaller : IAppInstaller
     protected readonly IWebDownloader _webDownloader;
 
     protected readonly Subject<PackageInstallationStep> _whenInstallStarted = new();
+    protected readonly Subject<string> _whenSetupOutputReceived = new();
 
     public IObservable<PackageInstallationStep> WhenInstallStarted =>
         _whenInstallStarted.AsObservable();
+
+    public IObservable<string> WhenSetupOutputReceived =>
+        _whenSetupOutputReceived.AsObservable();
 
     public IObservable<string> WhenDownloadStarted { get; }
     public IObservable<double?> WhenDownloadProgressReceived { get; }

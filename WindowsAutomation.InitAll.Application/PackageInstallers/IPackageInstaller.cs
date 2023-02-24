@@ -2,10 +2,10 @@
 
 public interface IPackageInstaller
 {
-    public IObservable<PackageInstallationStep> WhenInstallStarted { get; }
-
-    public IObservable<string>? WhenDownloadStarted { get; }
-    public IObservable<double?>? WhenDownloadProgressReceived { get; }
+    IObservable<PackageInstallationStep> WhenInstallStarted { get; }
+    IObservable<string>? WhenDownloadStarted { get; }
+    IObservable<double?>? WhenDownloadProgressReceived { get; }
+    IObservable<string> WhenSetupOutputReceived { get; }
 
     Task InstallPackages();
 }

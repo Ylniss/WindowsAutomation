@@ -15,14 +15,14 @@ public class ChocoPackageInstaller : IPackageInstaller
     public IObservable<PackageInstallationStep> WhenInstallStarted => _whenInstallStarted.AsObservable();
     public IObservable<string>? WhenDownloadStarted { get; }
     public IObservable<double?>? WhenDownloadProgressReceived { get; }
-    public IObservable<string> WhenChocoScriptOutputReceived { get; }
+    public IObservable<string> WhenSetupOutputReceived { get; }
 
     public ChocoPackageInstaller(IShellRunner shellRunner)
     {
         _shellRunner = shellRunner;
         WhenDownloadStarted = _shellRunner.WhenDownloadStarted;
         WhenDownloadProgressReceived = _shellRunner.WhenDownloadProgressReceived;
-        WhenChocoScriptOutputReceived = _shellRunner.WhenOutputReceived;
+        WhenSetupOutputReceived = _shellRunner.WhenOutputReceived;
     }
 
     private async Task InstallChoco()

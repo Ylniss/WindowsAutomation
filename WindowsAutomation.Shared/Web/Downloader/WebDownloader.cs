@@ -37,7 +37,10 @@ public class WebDownloader : IWebDownloader
         _whenDownloadStarted.OnNext(webFileDownload.Uri);
         var stream = await _httpClient.GetStreamAsync(webFileDownload.Uri);
 
-        await using var fileStream = new FileStream(webFileDownload.Destination, FileMode.OpenOrCreate);
+        var destination = Directory.GetParent(webFileDownload.Destination)!.FullName;
+        // if (!Directory.Exists(destination)) Directory.CreateDirectory(destination);
+
+        await using var fileStream = new FileStream(destination, FileMode.OpenOrCreate);
         await stream.CopyToAsync(fileStream);
     }
 

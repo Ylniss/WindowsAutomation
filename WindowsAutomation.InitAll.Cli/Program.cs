@@ -25,18 +25,22 @@ try
 
     SetupConsoleEvents(initAllRunner);
     await initAllRunner.RunCoreLogic();
-    Console.WriteLine(" ---------- Windows initialization script finished ---------- ");
+    Console.WriteLine("\n ---------- Windows initialization script finished ---------- ");
+    Console.ReadKey();
 }
 catch (Exception e)
 {
-    Console.WriteLine($"\nError occured during initialization:\n{e.Message}");
+    Console.WriteLine($"\nError occured during initialization:\n{e.Message}\n{e.InnerException?.Message}");
+    Console.WriteLine($"\n{e.StackTrace}");
+    Console.ReadKey();
+
     throw;
 }
 
 static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 {
     var chocoAppsInstaller =
-        initAllRunner.PackageInstallers.Single(installer =>
+        initAllRunner.PackageInstallers.SingleOrDefault(installer =>
             installer is ChocoPackageInstaller) as ChocoPackageInstaller;
 
     chocoAppsInstaller?.WhenInstallStarted
@@ -67,7 +71,8 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 
 
     var myAppsInstaller =
-        initAllRunner.PackageInstallers.Single(installer => installer is MyPackageInstaller) as MyPackageInstaller;
+        initAllRunner.PackageInstallers.SingleOrDefault(installer => installer is MyPackageInstaller) as
+            MyPackageInstaller;
 
     myAppsInstaller?.WhenInstallStarted
         .Where(installationStep => installationStep.Step == InstallationStep.Download)
@@ -82,12 +87,14 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 
     myAppsInstaller?.WhenInstallStarted
         .Where(installationStep => installationStep.Step == InstallationStep.RunSetup)
-        .Subscribe(package =>
-            Console.WriteLine($"\n{package} installation started..."));
+        .Subscribe(step =>
+            Console.WriteLine($"\n{step.Package} installation started..."));
 
     myAppsInstaller?.WhenSetupOutputReceived
         .Subscribe(Console.WriteLine);
 
     myAppsInstaller?.WhenInstallStarted
-        .Subscribe(step => { }, () => Console.WriteLine("Done."));
+        .Subscribe(_ => { }, () => Console.WriteLine("Done."));
+
+    initAllRunner.WhenDesktopFilesRemoveStarted.Subscribe(_ => Console.WriteLine("Cleaning desktop..."));
 }

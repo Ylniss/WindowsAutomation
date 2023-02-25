@@ -1,6 +1,6 @@
 ﻿using System.IO.Compression;
 
-namespace WindowsAutomation.Shared.Compression;
+namespace WindowsAutomation.Shared.Filesystem.Compression;
 
 public class Zipper : IZipper
 {

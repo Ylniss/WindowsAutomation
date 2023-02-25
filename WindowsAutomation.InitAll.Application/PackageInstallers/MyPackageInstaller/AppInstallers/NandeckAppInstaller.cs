@@ -1,5 +1,5 @@
 ﻿using WindowsAutomation.Shared;
-using WindowsAutomation.Shared.Compression;
+using WindowsAutomation.Shared.Filesystem.Compression;
 using WindowsAutomation.Shared.RegularExpression.Dtos;
 using WindowsAutomation.Shared.Web.Downloader;
 using WindowsAutomation.Shared.Web.Downloader.Dtos;

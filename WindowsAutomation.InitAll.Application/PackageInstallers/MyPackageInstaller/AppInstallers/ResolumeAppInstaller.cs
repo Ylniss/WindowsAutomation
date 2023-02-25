@@ -25,7 +25,7 @@ public class ResolumeAppInstaller : AppInstaller
         _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
 
         var cmd = Cli.Wrap("cmd")
-            .WithArguments(a => a.Add("/c").Add("/SP-").Add("/VERYSILENT"));
+            .WithArguments(a => a.Add("/c").Add(SetupPath).Add("/SP-").Add("/VERYSILENT"));
 
         var result = await cmd.ExecuteBufferedAsync();
         _whenSetupOutputReceived.OnNext(result.StandardOutput);

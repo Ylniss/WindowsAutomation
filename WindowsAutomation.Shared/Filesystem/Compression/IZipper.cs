@@ -1,4 +1,4 @@
-﻿namespace WindowsAutomation.Shared.Compression;
+﻿namespace WindowsAutomation.Shared.Filesystem.Compression;
 
 public interface IZipper
 {

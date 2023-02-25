@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using WindowsAutomation.Shared.Filesystem.DirMaker;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.RegularExpression.Dtos;
 using WindowsAutomation.Shared.Web.Downloader.Dtos;
@@ -9,6 +10,7 @@ namespace WindowsAutomation.Shared.Web.Downloader;
 public class WebDownloader : IWebDownloader
 {
     private readonly IRegexExtractor _regexExtractor;
+    private readonly IDirMaker _dirMaker;
     private readonly HttpClient _httpClient;
 
     private readonly Subject<string> _whenDownloadStarted = new();
@@ -17,9 +19,10 @@ public class WebDownloader : IWebDownloader
     public IObservable<string> WhenDownloadStarted => _whenDownloadStarted.AsObservable();
     public IObservable<double?> WhenDownloadProgressReceived => _whenDownloadProgressReceived.AsObservable();
 
-    public WebDownloader(IRegexExtractor regexExtractor, IMyHttpClientFactory myHttpClientFactory)
+    public WebDownloader(IRegexExtractor regexExtractor, IMyHttpClientFactory myHttpClientFactory, IDirMaker dirMaker)
     {
         _regexExtractor = regexExtractor;
+        _dirMaker = dirMaker;
         _httpClient = myHttpClientFactory.CreateWithProgress(_whenDownloadProgressReceived);
     }
 
@@ -37,8 +40,9 @@ public class WebDownloader : IWebDownloader
         _whenDownloadStarted.OnNext(webFileDownload.Uri);
         var stream = await _httpClient.GetStreamAsync(webFileDownload.Uri);
 
-        var destination = Directory.GetParent(webFileDownload.Destination)!.FullName;
-        await using var fileStream = new FileStream(destination, FileMode.OpenOrCreate);
+        _dirMaker.MakeDirForFileIfNotExists(webFileDownload.Destination);
+
+        await using var fileStream = new FileStream(webFileDownload.Destination, FileMode.OpenOrCreate);
         await stream.CopyToAsync(fileStream);
     }
 

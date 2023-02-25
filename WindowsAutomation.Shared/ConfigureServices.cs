@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using WindowsAutomation.Shared.Compression;
+using WindowsAutomation.Shared.Filesystem.Compression;
+using WindowsAutomation.Shared.Filesystem.DirCleaner;
+using WindowsAutomation.Shared.Filesystem.DirMaker;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
@@ -16,6 +18,8 @@ public static class ConfigureServices
         services.AddScoped<IWebDownloader, WebDownloader>();
         services.AddScoped<IRegexExtractor, RegexExtractor>();
         services.AddScoped<IZipper, Zipper>();
+        services.AddScoped<IDirMaker, DirMaker>();
+        services.AddScoped<IDirCleaner, DirCleaner>();
 
         return services;
     }

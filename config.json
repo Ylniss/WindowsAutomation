@@ -1,0 +1,12 @@
+{
+  "github_credentials" : {
+    "username" : "username",
+    "access_token" : "github access token generated at: https://github.com/settings/tokens/new"
+  },
+  
+  "folder_structure" : [
+    "C:/Repo",
+    "C:/Vfx",
+    "~/Downloads"
+  ]
+}

@@ -10,7 +10,7 @@ namespace WindowsAutomation.InitAll.Application.PackageInstallers.MyPackageInsta
 public class ResolumeAppInstaller : AppInstaller
 {
     public override string AppName => "Resolume";
-    public override string SetupPath => $"""{Constants.Paths.Software}\resolume-arena-installer.exe""";
+    public override string SetupPath => $"""{Constants.CommonPaths.Software}\resolume-arena-installer.exe""";
 
 
     public ResolumeAppInstaller(IWebDownloader webDownloader) : base(webDownloader)

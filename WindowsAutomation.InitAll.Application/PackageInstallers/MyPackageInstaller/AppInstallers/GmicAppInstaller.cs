@@ -11,7 +11,7 @@ public class GmicAppInstaller : AppInstaller
 {
     private readonly IRegexExtractor _regexExtractor;
     public override string AppName => "Gmic";
-    public override string SetupPath => $"""{Constants.Paths.Software}\GMIC.exe""";
+    public override string SetupPath => $"""{Constants.CommonPaths.Software}\GMIC.exe""";
 
     public GmicAppInstaller(IWebDownloader webDownloader, IRegexExtractor regexExtractor) : base(webDownloader)
     {

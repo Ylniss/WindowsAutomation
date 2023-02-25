@@ -1,45 +1,91 @@
-﻿using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
+﻿using LibGit2Sharp;
 using WindowsAutomation.InitAll.Application.PackageInstallers;
+using WindowsAutomation.Shared;
 using WindowsAutomation.Shared.Filesystem.DirCleaner;
+using WindowsAutomation.Shared.Filesystem.DirMaker;
+using WindowsAutomation.Shared.Git;
+using WindowsAutomation.Shared.Serializers;
 
 namespace WindowsAutomation.InitAll.Application;
 
 public class WindowsInitAllRunner : IInitAllRunner
 {
-    private readonly IDirCleaner _dirCleaner;
     public IEnumerable<IPackageInstaller> PackageInstallers { get; }
+    public IGitClient GitClient { get; }
+    public IDirCleaner DirCleaner { get; }
+    public IDirMaker DirMaker { get; }
 
+    private readonly IFileSerializer _fileSerializer;
 
-    private readonly Subject<Unit> _whenDesktopFilesRemoveStarted = new();
-    public IObservable<Unit> WhenDesktopFilesRemoveStarted => _whenDesktopFilesRemoveStarted.AsObservable();
-
-    public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner)
+    public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
+        IDirMaker dirMaker,
+        IGitClient gitClient, IFileSerializer fileSerializer)
     {
-        _dirCleaner = dirCleaner;
+        DirCleaner = dirCleaner;
+        GitClient = gitClient;
+        DirMaker = dirMaker;
+        _fileSerializer = fileSerializer;
         PackageInstallers = packageInstallers;
     }
 
     public async Task RunCoreLogic()
     {
-        foreach (var installer in PackageInstallers) await installer.InstallPackages();
+        var config = GetConfigFromJson();
 
-        DownloadLatestPowerShellProfileAndSetSymbolicLink();
-        
+        //foreach (var installer in PackageInstallers) await installer.InstallPackages();
+
+        CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
+        SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
+
+        CreateInitialFolderStructure(config.FolderStructure);
+
         RemoveAllDesktopFiles();
-        _dirCleaner.CleanRecycleBin();
+        DirCleaner.CleanRecycleBin();
     }
 
-    private void DownloadLatestPowerShellProfileAndSetSymbolicLink()
+    private InitAllConfig GetConfigFromJson()
     {
-        
+        var config =
+            _fileSerializer.DeserializeFromFile<InitAllConfig>($"""{Environment.CurrentDirectory}\config.json""");
+
+        if (config is null) throw new InvalidOperationException("config not initialized properly.");
+
+        return config;
+    }
+
+    private void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath)
+    {
+        GitClient.User = new UsernamePasswordCredentials
+        {
+            Username = githubCredentials.Username,
+            Password = githubCredentials.AccessToken
+        };
+
+        foreach (var repoName in repoNames) GitClient.CloneIfNotExists(repoName, repoPath);
+    }
+
+
+    private void SwapPowerShellProfileWithSymbolicLink(string pathToTarget)
+    {
+        if (!File.Exists(pathToTarget)) return;
+
+        DirCleaner.RemoveFileIfExists(Constants.CommonPaths.PowerShellProfile);
+        DirMaker.MakeDirForFileIfNotExists(Constants.CommonPaths.PowerShellProfile);
+        File.CreateSymbolicLink(Constants.CommonPaths.PowerShellProfile, pathToTarget);
+    }
+
+    private void CreateInitialFolderStructure(string[] directories)
+    {
+        // todo: replace ~ for user path in directories if doesnt work after test
+        foreach (var directory in directories) DirMaker.MakeDirIfNotExists(directory);
     }
 
     private void RemoveAllDesktopFiles()
     {
-        _whenDesktopFilesRemoveStarted.OnNext(new Unit());
-        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
-        _dirCleaner.RemoveAllFilesInDir(desktopPath);
+        var commonDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
+        DirCleaner.RemoveAllFilesInDir(commonDesktopPath);
+
+        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        DirCleaner.RemoveAllFilesInDir(desktopPath);
     }
 }

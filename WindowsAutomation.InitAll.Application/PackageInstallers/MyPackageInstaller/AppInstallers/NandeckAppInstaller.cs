@@ -10,7 +10,7 @@ public class NandeckAppInstaller : AppInstaller
 {
     private readonly IZipper _zipper;
     public override string AppName => "Nandeck";
-    public override string SetupPath => $"""{Constants.Paths.ProgramFilesX86}\Nandeck\Nandeck.zip""";
+    public override string SetupPath => $"""{Constants.CommonPaths.ProgramFilesX86}\Nandeck\Nandeck.zip""";
 
     public NandeckAppInstaller(IWebDownloader webDownloader, IZipper zipper) : base(webDownloader)
     {

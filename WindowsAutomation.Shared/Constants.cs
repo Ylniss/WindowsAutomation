@@ -6,14 +6,14 @@ public static class Constants
     public const string ChocoPackagesConfig = "choco_packages.config";
 
 
-    public static class Paths
+    public static class CommonPaths
     {
-        public const string Repo = "C:/Repo";
-        public const string Software = "C:/Downloads/Software";
+        public const string Software = """C:\Downloads\Software""";
 
-        public static string ProgramFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");
-        public static string ProgramFilesX86 = Environment.ExpandEnvironmentVariables("%ProgramFiles(x86)%");
+        public static string PowerShellProfile =
+            $"""{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\Documents\PowerShell\{ProfileName}""";
 
-        public static string WorkingDir => Environment.CurrentDirectory;
+        public static string ProgramFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        public static string ProgramFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
     }
 }

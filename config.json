@@ -1,12 +1,25 @@
 {
   "github_credentials" : {
-    "username" : "username",
-    "access_token" : "github access token generated at: https://github.com/settings/tokens/new"
+    "username" : "Ylniss",
+    "access_token" : "access_token"
+  },
+
+  "repos_to_clone": [
+    ".dotfiles",
+    "WindowsAutomation"
+  ],
+  
+  "paths" : {
+    "repo" : "C:/Repo"
   },
   
   "folder_structure" : [
-    "C:/Repo",
-    "C:/Vfx",
-    "~/Downloads"
+    "~/Stuff/Vfx",
+    "~/Stuff/Camera Videos",
+    "~/Stuff/Graphics",
+    "~/Stuff/Photos",
+    "~/Stuff/Gifs",
+    
+    "C:/Games"
   ]
 }

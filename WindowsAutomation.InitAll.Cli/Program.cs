@@ -96,5 +96,17 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
     myAppsInstaller?.WhenInstallStarted
         .Subscribe(_ => { }, () => Console.WriteLine("Done."));
 
-    initAllRunner.WhenDesktopFilesRemoveStarted.Subscribe(_ => Console.WriteLine("Cleaning desktop..."));
+    initAllRunner.GitClient.WhenGitCloneStarted.Subscribe(
+        tuple => Console.WriteLine($"Cloning repo {tuple.repo} to {tuple.destination}..."),
+        exception => Console.WriteLine($"Could not clone repo: {exception.Message}"));
+
+
+    initAllRunner.DirCleaner.WhenRemoveStarted
+        .Where(dir => !dir.Contains(Constants.ProfileName))
+        .Subscribe(dir =>
+            Console.WriteLine($"Removing files in {dir}..."));
+
+    initAllRunner.DirMaker.WhenMakeDirStarted
+        .Subscribe(dir =>
+            Console.WriteLine($"Creating directory: {dir}..."));
 }

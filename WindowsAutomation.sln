@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		choco_packages.config = choco_packages.config
+		config.json = config.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InitAll", "InitAll", "{5FC64A18-0F2D-475F-80BF-770F03CD1D36}"

@@ -20,21 +20,39 @@ var provider = serviceScope.ServiceProvider;
 try
 {
     var initAllRunner = provider.GetService<IInitAllRunner>();
-
     if (initAllRunner is null) throw new ApplicationException("IInitAllRunner not injected properly.");
 
     SetupConsoleEvents(initAllRunner);
-    await initAllRunner.RunCoreLogic();
+    await RunCoreLogic(initAllRunner);
+
     Console.WriteLine("\n ---------- Windows initialization script finished ---------- ");
     Console.ReadKey();
 }
 catch (Exception e)
 {
     Console.WriteLine($"\nError occured during initialization:\n{e.Message}\n{e.InnerException?.Message}");
+#if (DEBUG)
     Console.WriteLine($"\n{e.StackTrace}");
+#endif
+
     Console.ReadKey();
 
     throw;
+}
+
+static async Task RunCoreLogic(IInitAllRunner initAllRunner)
+{
+    var config = initAllRunner.GetConfigFromJson();
+
+    await initAllRunner.InstallPackages();
+
+    initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
+    initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
+
+    initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
+    initAllRunner.CopyDirectories(config.CopyDirectories);
+
+    initAllRunner.CleanDesktopAndRecycleBin();
 }
 
 static void SetupConsoleEvents(IInitAllRunner initAllRunner)
@@ -62,7 +80,7 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Subscribe(Console.WriteLine);
 
     chocoAppsInstaller?.WhenDownloadStarted?.Subscribe(uri =>
-        Console.WriteLine($"Download from {uri} started..."));
+        Console.WriteLine($"Download from '{uri}' started..."));
 
     chocoAppsInstaller?.WhenDownloadProgressReceived?
         .Where(progress => progress is not null)
@@ -83,7 +101,7 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Where(installationStep => installationStep.Step == InstallationStep.Extract)
         .Where(installationStep => installationStep.Destination is not null)
         .Subscribe(step =>
-            Console.WriteLine($"\nExtracting {step.Package} to {step.Destination}"));
+            Console.WriteLine($"\nExtracting '{step.Package}' to '{step.Destination}'"));
 
     myAppsInstaller?.WhenInstallStarted
         .Where(installationStep => installationStep.Step == InstallationStep.RunSetup)
@@ -97,16 +115,22 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         .Subscribe(_ => { }, () => Console.WriteLine("Done."));
 
     initAllRunner.GitClient.WhenGitCloneStarted.Subscribe(
-        tuple => Console.WriteLine($"Cloning repo {tuple.repo} to {tuple.destination}..."),
+        tuple => Console.WriteLine($"Cloning repo '{tuple.repo}' to '{tuple.destination}'..."),
         exception => Console.WriteLine($"Could not clone repo: {exception.Message}"));
 
 
     initAllRunner.DirCleaner.WhenRemoveStarted
         .Where(dir => !dir.Contains(Constants.ProfileName))
         .Subscribe(dir =>
-            Console.WriteLine($"Removing files in {dir}..."));
+            Console.WriteLine($"Removing files in '{dir}'..."));
 
     initAllRunner.DirMaker.WhenMakeDirStarted
         .Subscribe(dir =>
-            Console.WriteLine($"Creating directory: {dir}..."));
+            Console.WriteLine($"Creating directory: '{dir}'..."));
+
+    initAllRunner.DirCopier.WhenCopyStarted.Subscribe(
+        dirs => Console.WriteLine($"Copying from '{dirs.source}' to '{dirs.destination}'..."));
+
+    initAllRunner.DirCopier.WhenSourceDirNotFound.Subscribe(
+        dir => Console.WriteLine($"Could not copy, directory not found: '{dir}'"));
 }

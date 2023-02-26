@@ -2,9 +2,10 @@
 using WindowsAutomation.InitAll.Application.PackageInstallers;
 using WindowsAutomation.Shared;
 using WindowsAutomation.Shared.Filesystem.DirCleaner;
+using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
+using WindowsAutomation.Shared.Filesystem.Serializers;
 using WindowsAutomation.Shared.Git;
-using WindowsAutomation.Shared.Serializers;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -14,36 +15,22 @@ public class WindowsInitAllRunner : IInitAllRunner
     public IGitClient GitClient { get; }
     public IDirCleaner DirCleaner { get; }
     public IDirMaker DirMaker { get; }
+    public IDirCopier DirCopier { get; }
 
     private readonly IFileSerializer _fileSerializer;
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
-        IDirMaker dirMaker,
-        IGitClient gitClient, IFileSerializer fileSerializer)
+        IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer)
     {
         DirCleaner = dirCleaner;
-        GitClient = gitClient;
         DirMaker = dirMaker;
+        DirCopier = dirCopier;
+        GitClient = gitClient;
         _fileSerializer = fileSerializer;
         PackageInstallers = packageInstallers;
     }
 
-    public async Task RunCoreLogic()
-    {
-        var config = GetConfigFromJson();
-
-        //foreach (var installer in PackageInstallers) await installer.InstallPackages();
-
-        CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
-        SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
-
-        CreateInitialFolderStructure(config.FolderStructure);
-
-        RemoveAllDesktopFiles();
-        DirCleaner.CleanRecycleBin();
-    }
-
-    private InitAllConfig GetConfigFromJson()
+    public InitAllConfig GetConfigFromJson()
     {
         var config =
             _fileSerializer.DeserializeFromFile<InitAllConfig>($"""{Environment.CurrentDirectory}\config.json""");
@@ -53,7 +40,12 @@ public class WindowsInitAllRunner : IInitAllRunner
         return config;
     }
 
-    private void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath)
+    public async Task InstallPackages()
+    {
+        foreach (var installer in PackageInstallers) await installer.InstallPackages();
+    }
+
+    public void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath)
     {
         GitClient.User = new UsernamePasswordCredentials
         {
@@ -65,7 +57,7 @@ public class WindowsInitAllRunner : IInitAllRunner
     }
 
 
-    private void SwapPowerShellProfileWithSymbolicLink(string pathToTarget)
+    public void SwapPowerShellProfileWithSymbolicLink(string pathToTarget)
     {
         if (!File.Exists(pathToTarget)) return;
 
@@ -74,18 +66,23 @@ public class WindowsInitAllRunner : IInitAllRunner
         File.CreateSymbolicLink(Constants.CommonPaths.PowerShellProfile, pathToTarget);
     }
 
-    private void CreateInitialFolderStructure(string[] directories)
+    public void CreateInitialFolderStructure(string[] directories)
     {
-        // todo: replace ~ for user path in directories if doesnt work after test
         foreach (var directory in directories) DirMaker.MakeDirIfNotExists(directory);
     }
 
-    private void RemoveAllDesktopFiles()
+    public void CopyDirectories(CopyPaths[] copyPaths)
+    {
+        foreach (var copyPath in copyPaths) DirCopier.CopyDirectory(copyPath.From, copyPath.To);
+    }
+
+    public void CleanDesktopAndRecycleBin()
     {
         var commonDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
         DirCleaner.RemoveAllFilesInDir(commonDesktopPath);
 
         var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         DirCleaner.RemoveAllFilesInDir(desktopPath);
+        DirCleaner.CleanRecycleBin();
     }
 }

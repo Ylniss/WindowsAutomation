@@ -15,5 +15,6 @@ public static class Constants
 
         public static string ProgramFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         public static string ProgramFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+        public static string User = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
 }

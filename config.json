@@ -10,7 +10,7 @@
   ],
   
   "paths" : {
-    "repo" : "C:/Repo"
+    "repo" : "~/Stuff/Repo"
   },
   
   "folder_structure" : [
@@ -19,7 +19,25 @@
     "~/Stuff/Graphics",
     "~/Stuff/Photos",
     "~/Stuff/Gifs",
+    "~/Stuff/BoardGame Design",
+    "~/Stuff/Work",
+    "~/Stuff/Books",
+    "~/Stuff/Movies",
+    "~/Stuff/Sec",
     
     "C:/Games"
+  ],
+
+  "copy_directories" : [
+    {"from" : "Backup/Vfx", "to":"~/Stuff/Vfx"},
+    {"from" : "Backup/Camera Videos", "to":"~/Stuff/Camera Videos"},
+    {"from" : "Backup/Graphics", "to":"~/Stuff/Graphics"},
+    {"from" : "Backup/Photos", "to":"~/Stuff/Photos"},
+    {"from" : "Backup/Gifs", "to":"~/Stuff/Gifs"},
+    {"from" : "Backup/BoardGame Design", "to":"~/Stuff/BoardGame Design"},
+    {"from" : "Backup/Work", "to":"~/Stuff/Work"},
+    {"from" : "Backup/Books", "to":"~/Stuff/Books"},
+    {"from" : "Backup/Movies", "to":"~/Stuff/Movies"},
+    {"from" : "Backup/Sec", "to":"~/Stuff/Sec"}
   ]
 }

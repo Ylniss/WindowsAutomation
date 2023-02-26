@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace WindowsAutomation.Shared.Serializers.NamingPolicies;
+namespace WindowsAutomation.Shared.Filesystem.Serializers.NamingPolicies;
 
 public class SnakeCaseNamingPolicy : JsonNamingPolicy
 {

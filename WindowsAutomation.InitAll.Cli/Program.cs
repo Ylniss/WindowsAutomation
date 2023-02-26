@@ -106,13 +106,22 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
     myAppsInstaller?.WhenInstallStarted
         .Where(installationStep => installationStep.Step == InstallationStep.RunSetup)
         .Subscribe(step =>
-            Console.WriteLine($"\n{step.Package} installation started..."));
+            Console.Write($"\n{step.Package} installation started... "));
 
     myAppsInstaller?.WhenSetupOutputReceived
+        .Where(output => !string.IsNullOrEmpty(output))
         .Subscribe(Console.WriteLine);
 
     myAppsInstaller?.WhenInstallStarted
         .Subscribe(_ => { }, () => Console.WriteLine("Done."));
+
+    myAppsInstaller?.WhenDownloadStarted?.Subscribe(uri =>
+        Console.WriteLine($"Download from '{uri}' started..."));
+
+    myAppsInstaller?.WhenDownloadProgressReceived?
+        .Where(progress => progress is not null)
+        .Subscribe(progress =>
+            Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
 
     initAllRunner.GitClient.WhenGitCloneStarted.Subscribe(
         tuple => Console.WriteLine($"Cloning repo '{tuple.repo}' to '{tuple.destination}'..."),

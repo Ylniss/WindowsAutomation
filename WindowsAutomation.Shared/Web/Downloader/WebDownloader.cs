@@ -11,7 +11,7 @@ public class WebDownloader : IWebDownloader
 {
     private readonly IRegexExtractor _regexExtractor;
     private readonly IDirMaker _dirMaker;
-    private readonly HttpClient _httpClient;
+    public HttpClient HttpClient { get; }
 
     private readonly Subject<string> _whenDownloadStarted = new();
     private readonly Subject<double?> _whenDownloadProgressReceived = new();
@@ -23,13 +23,13 @@ public class WebDownloader : IWebDownloader
     {
         _regexExtractor = regexExtractor;
         _dirMaker = dirMaker;
-        _httpClient = myHttpClientFactory.CreateWithProgress(_whenDownloadProgressReceived);
+        HttpClient = myHttpClientFactory.CreateWithProgress(_whenDownloadProgressReceived);
     }
 
     public async Task<string> DownloadContent(string uri)
     {
         _whenDownloadStarted.OnNext(uri);
-        var response = await _httpClient.GetAsync(uri);
+        var response = await HttpClient.GetAsync(uri);
         var content = await response.Content.ReadAsStringAsync();
 
         return content;
@@ -38,7 +38,7 @@ public class WebDownloader : IWebDownloader
     public async Task DownloadFile(WebFileDownload webFileDownload)
     {
         _whenDownloadStarted.OnNext(webFileDownload.Uri);
-        var stream = await _httpClient.GetStreamAsync(webFileDownload.Uri);
+        var stream = await HttpClient.GetStreamAsync(webFileDownload.Uri);
 
         _dirMaker.MakeDirForFileIfNotExists(webFileDownload.Destination);
 

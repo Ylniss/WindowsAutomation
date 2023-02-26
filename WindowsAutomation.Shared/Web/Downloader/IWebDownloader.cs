@@ -8,6 +8,8 @@ public interface IWebDownloader
     public IObservable<string> WhenDownloadStarted { get; }
     public IObservable<double?> WhenDownloadProgressReceived { get; }
 
+    public HttpClient HttpClient { get; }
+
     Task<string> DownloadContent(string uri);
     Task DownloadFile(WebFileDownload webFileDownload);
     Task ExtractLinkAndDownloadFile(WebFileDownload webFileDownload, RegexGroupNameMatch regex, string prependUri = "");

@@ -29,6 +29,7 @@ public class ResolumeAppInstaller : AppInstaller
 
         var result = await cmd.ExecuteBufferedAsync();
         _whenSetupOutputReceived.OnNext(result.StandardOutput);
+        _whenInstallStarted.OnCompleted();
     }
 
     private async Task DownloadApp()

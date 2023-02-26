@@ -4,8 +4,13 @@ using WindowsAutomation.Shared;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.RegularExpression.Dtos;
 using WindowsAutomation.Shared.Web.Downloader;
+using WindowsAutomation.Shared.Web.Downloader.Dtos;
 
 namespace WindowsAutomation.InitAll.Application.PackageInstallers.MyPackageInstaller.AppInstallers;
+
+internal record Data(string Url);
+
+internal record GmicServerResponse(Data Data);
 
 public class GmicAppInstaller : AppInstaller
 {
@@ -30,6 +35,7 @@ public class GmicAppInstaller : AppInstaller
 
         var result = await cmd.ExecuteBufferedAsync();
         _whenSetupOutputReceived.OnNext(result.StandardOutput);
+        _whenInstallStarted.OnCompleted();
     }
 
     private async Task DownloadApp()
@@ -44,5 +50,19 @@ public class GmicAppInstaller : AppInstaller
         var fileName = _regexExtractor.Extract(html,
             new RegexGroupNameMatch("""_win64.exe"\sdata-file="(?<filename>.*)"\srel="nofollow""",
                 "filename"));
+
+        var response = await _webDownloader.HttpClient.PostAsync("""https://api.fosshub.com/download/""",
+            new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("fileName", fileName),
+                new KeyValuePair<string, string>("projectUri", "GMIC.html"),
+                new KeyValuePair<string, string>("source", "CF"),
+                new KeyValuePair<string, string>("projectId", projectId),
+                new KeyValuePair<string, string>("releaseId", releaseId)
+            }));
+
+        var content = await response.Content.ReadAsAsync<GmicServerResponse>();
+
+        await _webDownloader.DownloadFile(new WebFileDownload(content.Data.Url, SetupPath));
     }
 }

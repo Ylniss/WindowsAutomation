@@ -43,24 +43,27 @@ catch (Exception e)
 static async Task RunCoreLogic(IInitAllRunner initAllRunner)
 {
     var config = initAllRunner.GetConfigFromJson();
-    //
-    // await initAllRunner.InstallPackages();
-    //
-    // initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
-    // initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
-    //
-    // initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
-    // initAllRunner.CopyDirectories(config.CopyDirectories);
-    //
-    // initAllRunner.CursorChanger.SetCursorTheme(config.CursorTheme);
 
-    initAllRunner.Pinner.PinToQuickAccess(config.CopyDirectories[0].To);
+    await initAllRunner.InstallPackages();
 
+    initAllRunner.SetupStartupApplications(config.StartupApps);
+
+    initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
+    initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
+
+    initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
+    initAllRunner.CopyDirectories(config.CopyDirectories);
+    initAllRunner.CreateShortcuts(config.ShortcutDirectories);
+    initAllRunner.PinDirectoriesToQuickAccess(config.PinToQuickAccess);
+
+    initAllRunner.CursorChanger.SetCursorTheme(config.CursorTheme);
     initAllRunner.CleanDesktopAndRecycleBin();
 }
 
 static void SetupConsoleEvents(IInitAllRunner initAllRunner)
 {
+    ConsoleEvents.SetupGeneralInstaller(initAllRunner.PackageInstallers.FirstOrDefault());
+
     var chocoAppsInstaller =
         initAllRunner.PackageInstallers.SingleOrDefault(installer =>
             installer is ChocoPackageInstaller) as ChocoPackageInstaller;

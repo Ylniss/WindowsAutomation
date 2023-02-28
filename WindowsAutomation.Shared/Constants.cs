@@ -8,13 +8,13 @@ public static class Constants
 
     public static class CommonPaths
     {
-        public const string Software = """C:\Downloads\Software""";
-
         public static string PowerShellProfile =
             $"""{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\Documents\PowerShell\{ProfileName}""";
 
         public static string ProgramFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         public static string ProgramFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
         public static string User = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        public static string Software = $"""{User}\Downloads\Software""";
     }
 }

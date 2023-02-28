@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp;
 using WindowsAutomation.InitAll.Application.PackageInstallers;
 using WindowsAutomation.Shared;
+using WindowsAutomation.Shared.Extensions;
 using WindowsAutomation.Shared.Filesystem.DirCleaner;
 using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
@@ -8,6 +9,7 @@ using WindowsAutomation.Shared.Filesystem.Serializers;
 using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
+using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -22,12 +24,13 @@ public class WindowsInitAllRunner : IInitAllRunner
     public IGitClient GitClient { get; }
     public ICursorChanger CursorChanger { get; }
     public IPinner Pinner { get; }
+    public IStartupAppsAdder StartupAppsAdder { get; }
 
     private readonly IFileSerializer _fileSerializer;
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
         IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer,
-        ICursorChanger cursorChanger, IPinner pinner)
+        ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder)
     {
         PackageInstallers = packageInstallers;
 
@@ -38,6 +41,7 @@ public class WindowsInitAllRunner : IInitAllRunner
         GitClient = gitClient;
         CursorChanger = cursorChanger;
         Pinner = pinner;
+        StartupAppsAdder = startupAppsAdder;
         _fileSerializer = fileSerializer;
     }
 
@@ -54,6 +58,11 @@ public class WindowsInitAllRunner : IInitAllRunner
     public async Task InstallPackages()
     {
         foreach (var installer in PackageInstallers) await installer.InstallPackages();
+    }
+
+    public void SetupStartupApplications(string[] startupApps)
+    {
+        foreach (var app in startupApps) StartupAppsAdder.AddApp(app);
     }
 
     public void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath)
@@ -82,9 +91,29 @@ public class WindowsInitAllRunner : IInitAllRunner
         foreach (var directory in directories) DirMaker.MakeDirIfNotExists(directory);
     }
 
-    public void CopyDirectories(CopyPaths[] copyPaths)
+    public void CopyDirectories(SourceTargetPaths[] copyPaths)
     {
         foreach (var copyPath in copyPaths) DirCopier.CopyDirectory(copyPath.From, copyPath.To);
+    }
+
+    public void CreateShortcuts(SourceTargetPaths[] paths)
+    {
+        foreach (var path in paths) DirMaker.MakeDirShortcut(path.From, path.To);
+    }
+
+    public void PinDirectoriesToQuickAccess(string[] directories)
+    {
+        Pinner.PinToQuickAccess("~/Videos".AsWindowsPath());
+        Pinner.PinToQuickAccess("~/Music".AsWindowsPath());
+        Pinner.PinToQuickAccess("~/Documents".AsWindowsPath());
+        Pinner.PinToQuickAccess("~/Pictures".AsWindowsPath());
+
+        Pinner.UnpinFromQuickAccess("~/Videos".AsWindowsPath());
+        Pinner.UnpinFromQuickAccess("~/Music".AsWindowsPath());
+        Pinner.UnpinFromQuickAccess("~/Documents".AsWindowsPath());
+        Pinner.UnpinFromQuickAccess("~/Pictures".AsWindowsPath());
+
+        foreach (var directory in directories) Pinner.PinToQuickAccess(directory);
     }
 
     public void CleanDesktopAndRecycleBin()

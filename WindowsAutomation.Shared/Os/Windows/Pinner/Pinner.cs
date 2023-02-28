@@ -19,8 +19,11 @@ public class Pinner : IPinner
         WhenPin.Act(directory,
             dir =>
             {
-                _shellRunner.RunScript(
-                    $"$qa = New-Object -ComObject shell.application\n$qa.NameSpace('{dir}').Self.InvokeVerb(\"pintohome\")");
+                var pinScript = $"""
+                        $qa = New-Object -ComObject shell.application
+                        $qa.NameSpace('{dir}').Self.InvokeVerb("pintohome")
+                    """;
+                _shellRunner.RunScript(pinScript);
             });
     }
 
@@ -28,10 +31,13 @@ public class Pinner : IPinner
     {
         WhenUnpin.Act(directory, dir =>
         {
-            _shellRunner.RunScript(
-                """($qa.Namespace("shell:::{679F85CB-0220-4080-B29B-5540CC05AAB6}").Items() | Where-Object { $_.Path -EQ '""" +
-                dir + """' }).InvokeVerb("unpinfromhome")"""
-            );
+            var unpinScript = """
+                        $qa = New-Object -ComObject shell.application 
+                        ($qa.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "
+                    """ + dir + """
+                        "}).InvokeVerb("unpinfromhome")
+                    """;
+            _shellRunner.RunScript(unpinScript);
         });
     }
 }

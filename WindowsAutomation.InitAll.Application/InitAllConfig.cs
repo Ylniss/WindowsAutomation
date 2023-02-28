@@ -1,4 +1,4 @@
-﻿using WindowsAutomation.Shared;
+﻿using WindowsAutomation.Shared.Extensions;
 using WindowsAutomation.Shared.Os.Windows;
 
 namespace WindowsAutomation.InitAll.Application;
@@ -11,19 +11,19 @@ public record Paths
 
     public Paths(string repo)
     {
-        Repo = repo.Replace("~", Constants.CommonPaths.User);
+        Repo = repo.AsWindowsPath();
     }
 }
 
-public record CopyPaths
+public record SourceTargetPaths
 {
     public string From { get; }
     public string To { get; }
 
-    public CopyPaths(string from, string to)
+    public SourceTargetPaths(string from, string to)
     {
-        From = from.Replace("~", Constants.CommonPaths.User);
-        To = to.Replace("~", Constants.CommonPaths.User);
+        From = from.AsWindowsPath();
+        To = to.AsWindowsPath();
     }
 }
 
@@ -31,24 +31,35 @@ public record InitAllConfig
 {
     public GithubCredentials GithubCredentials { get; }
     public string[] ReposToClone { get; }
+    public string[] StartupApps { get; }
+    public SourceTargetPaths[] ShortcutDirectories { get; }
     public Paths Paths { get; }
     public string[] FolderStructure { get; }
-    public CopyPaths[] CopyDirectories { get; }
-    public Theme OsTheme { get; }
+    public SourceTargetPaths[] CopyDirectories { get; }
+    public string[] PinToQuickAccess { get; }
     public Theme CursorTheme { get; }
 
     public InitAllConfig(GithubCredentials githubCredentials, string[] reposToClone, Paths paths,
-        string[] folderStructure, CopyPaths[] copyDirectories, Theme osTheme, Theme cursorTheme)
+        string[] folderStructure, SourceTargetPaths[] copyDirectories, SourceTargetPaths[] shortcutDirectories,
+        string[] pinToQuickAccess, string[] startupApps,
+        Theme cursorTheme)
     {
         GithubCredentials = githubCredentials;
         ReposToClone = reposToClone;
 
-        Paths = new Paths(paths.Repo.Replace("~", Constants.CommonPaths.User));
-        FolderStructure = folderStructure.Select(directory =>
-            directory.Replace("~", Constants.CommonPaths.User)).ToArray();
+        Paths = new Paths(paths.Repo);
 
-        CopyDirectories = copyDirectories;
-        OsTheme = osTheme;
+        FolderStructure = folderStructure.Select(directory => directory.AsWindowsPath()).ToArray();
+        CopyDirectories = copyDirectories
+            .Select(copyPaths => new SourceTargetPaths(copyPaths.From.AsWindowsPath(), copyPaths.To.AsWindowsPath()))
+            .ToArray();
+        ShortcutDirectories = shortcutDirectories
+            .Select(copyPaths => new SourceTargetPaths(copyPaths.From.AsWindowsPath(), copyPaths.To.AsWindowsPath()))
+            .ToArray();
+        StartupApps = startupApps.Select(directory => directory.AsWindowsPath()).ToArray();
+
+        PinToQuickAccess = pinToQuickAccess.Select(directory => directory.AsWindowsPath()).ToArray();
+
         CursorTheme = cursorTheme;
     }
 }

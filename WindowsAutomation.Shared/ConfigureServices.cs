@@ -7,6 +7,7 @@ using WindowsAutomation.Shared.Filesystem.Serializers;
 using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
+using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
@@ -30,7 +31,8 @@ public static class ConfigureServices
             .AddScoped<IDirCopier, DirCopier>()
             .AddScoped<IGitClient, GitClient>()
             .AddScoped<ICursorChanger, CursorChanger>()
-            .AddScoped<IPinner, Pinner>();
+            .AddScoped<IPinner, Pinner>()
+            .AddScoped<IStartupAppsAdder, StartupAppsAdder>();
 
         return services;
     }

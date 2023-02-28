@@ -75,6 +75,16 @@ public static class ConsoleEvents
             .Subscribe(exception => CouldNot("create directory", exception.Message));
 
 
+        initAllRunner.DirMaker.WhenShortcutMake.Started
+            .Subscribe(paths => Console.Write($"Creating shortcut from '{paths.source}' to '{paths.destination}'..."));
+
+        initAllRunner.DirMaker.WhenShortcutMake.Finished
+            .Subscribe(_ => DoneMessage());
+
+        initAllRunner.DirMaker.WhenShortcutMake.Error
+            .Subscribe(exception => CouldNot("create shortcut", exception.Message));
+
+
         initAllRunner.DirCopier.WhenCopy.Started
             .Subscribe(dirs => Console.Write($"Copying from '{dirs.source}' to '{dirs.destination}'..."));
 
@@ -83,6 +93,17 @@ public static class ConsoleEvents
 
         initAllRunner.DirCopier.WhenCopy.Error
             .Subscribe(exception => CouldNot("create directory, not found", exception.Message));
+    }
+
+    public static void SetupGeneralInstaller(IPackageInstaller? packageInstaller)
+    {
+        packageInstaller?.WhenDownloadStarted?
+            .Subscribe(uri => Console.WriteLine($"Download from '{uri}' started..."));
+
+        packageInstaller?.WhenDownloadProgressReceived?
+            .Where(progress => progress is not null)
+            .Subscribe(progress =>
+                Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
     }
 
     public static void SetupMyAppsInstaller(MyPackageInstaller? myAppsInstaller)
@@ -108,15 +129,7 @@ public static class ConsoleEvents
             .Subscribe(Console.WriteLine);
 
         myAppsInstaller?.WhenInstallStarted
-            .Subscribe(_ => { }, () => Console.WriteLine("Done."));
-
-        myAppsInstaller?.WhenDownloadStarted?
-            .Subscribe(uri => Console.WriteLine($"Download from '{uri}' started..."));
-
-        myAppsInstaller?.WhenDownloadProgressReceived?
-            .Where(progress => progress is not null)
-            .Subscribe(progress =>
-                Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
+            .Subscribe(_ => { }, DoneMessage);
     }
 
     public static void SetupChocoAppsInstaller(ChocoPackageInstaller? chocoAppsInstaller)
@@ -138,14 +151,6 @@ public static class ConsoleEvents
         chocoAppsInstaller?.WhenSetupOutputReceived
             .Where(output => !output.Contains("Progress: "))
             .Subscribe(Console.WriteLine);
-
-        chocoAppsInstaller?.WhenDownloadStarted?
-            .Subscribe(uri => Console.WriteLine($"Download from '{uri}' started..."));
-
-        chocoAppsInstaller?.WhenDownloadProgressReceived?
-            .Where(progress => progress is not null)
-            .Subscribe(progress =>
-                Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
     }
 
     private static void CouldNot(string action, string message)

@@ -21,9 +21,12 @@ public interface IInitAllRunner
 
     InitAllConfig GetConfigFromJson();
     Task InstallPackages();
+    void SetupStartupApplications(string[] startupApps);
     void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath);
     void SwapPowerShellProfileWithSymbolicLink(string pathToTarget);
     void CreateInitialFolderStructure(string[] directories);
-    void CopyDirectories(CopyPaths[] copyPaths);
+    void CopyDirectories(SourceTargetPaths[] copyPaths);
+    void PinDirectoriesToQuickAccess(string[] directories);
+    void CreateShortcuts(SourceTargetPaths[] paths);
     void CleanDesktopAndRecycleBin();
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using WindowsAutomation.Shared.Filesystem.Serializers.Converters;
 using WindowsAutomation.Shared.Filesystem.Serializers.NamingPolicies;
 
 namespace WindowsAutomation.Shared.Filesystem.Serializers;
@@ -11,7 +12,8 @@ public class JsonFileSerializer : IFileSerializer
 
         var options = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = new SnakeCaseNamingPolicy()
+            PropertyNamingPolicy = new SnakeCaseNamingPolicy(),
+            Converters = { new ThemeJsonConverter() }
         };
 
         var json = sr.ReadToEnd();

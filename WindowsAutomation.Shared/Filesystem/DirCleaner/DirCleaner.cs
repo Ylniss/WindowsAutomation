@@ -1,6 +1,5 @@
-﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using WindowsAutomation.Shared.Rx;
 
 namespace WindowsAutomation.Shared.Filesystem.DirCleaner;
 
@@ -14,35 +13,39 @@ internal enum RecycleFlags : uint
 
 public class DirCleaner : IDirCleaner
 {
-    private readonly Subject<string> _whenRemoveStarted = new();
-    public IObservable<string> WhenRemoveStarted => _whenRemoveStarted.AsObservable();
+    public RxEvent<string> WhenRemove { get; } = new();
 
     [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
     private static extern uint SHEmptyRecycleBin(nint hwnd, string? pszRootPath, RecycleFlags dwFlags);
 
     public void RemoveAllFilesInDir(string directory)
     {
-        _whenRemoveStarted.OnNext(directory);
+        WhenRemove.Act(directory, dirArg =>
+        {
+            DirectoryInfo directoryInfo = new(dirArg);
+            foreach (var file in directoryInfo.EnumerateFiles())
+                file.Delete();
 
-        DirectoryInfo directoryInfo = new(directory);
-        foreach (var file in directoryInfo.EnumerateFiles())
-            file.Delete();
-
-        foreach (var dir in directoryInfo.EnumerateDirectories())
-            dir.Delete(true);
+            foreach (var dir in directoryInfo.EnumerateDirectories())
+                dir.Delete(true);
+        });
     }
 
     public void RemoveFileIfExists(string directory)
     {
-        _whenRemoveStarted.OnNext(directory);
-
-        if (File.Exists(directory))
-            File.Delete(directory);
+        WhenRemove.Act(directory, dir =>
+        {
+            if (File.Exists(dir))
+                File.Delete(dir);
+        });
     }
 
     public void CleanRecycleBin()
     {
-        SHEmptyRecycleBin(nint.Zero, null,
-            RecycleFlags.ShrbNoconfirmation | RecycleFlags.ShrbNoprogressui | RecycleFlags.ShrbNosound);
+        WhenRemove.Act("Recycle Bin", _ =>
+        {
+            SHEmptyRecycleBin(nint.Zero, null,
+                RecycleFlags.ShrbNoconfirmation | RecycleFlags.ShrbNoprogressui | RecycleFlags.ShrbNosound);
+        });
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace WindowsAutomation.Shared.Filesystem.DirMaker;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.Shared.Filesystem.DirMaker;
 
 public interface IDirMaker
 {
-    public IObservable<string> WhenMakeDirStarted { get; }
+    RxEvent<string> WhenMake { get; }
     void MakeDirForFileIfNotExists(string fileDestination);
     void MakeDirIfNotExists(string path);
 }

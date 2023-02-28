@@ -6,28 +6,39 @@ using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
 using WindowsAutomation.Shared.Filesystem.Serializers;
 using WindowsAutomation.Shared.Git;
+using WindowsAutomation.Shared.Os.Windows.CursorChanger;
+using WindowsAutomation.Shared.Os.Windows.Pinner;
 
 namespace WindowsAutomation.InitAll.Application;
 
 public class WindowsInitAllRunner : IInitAllRunner
 {
     public IEnumerable<IPackageInstaller> PackageInstallers { get; }
-    public IGitClient GitClient { get; }
+
     public IDirCleaner DirCleaner { get; }
     public IDirMaker DirMaker { get; }
     public IDirCopier DirCopier { get; }
 
+    public IGitClient GitClient { get; }
+    public ICursorChanger CursorChanger { get; }
+    public IPinner Pinner { get; }
+
     private readonly IFileSerializer _fileSerializer;
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
-        IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer)
+        IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer,
+        ICursorChanger cursorChanger, IPinner pinner)
     {
+        PackageInstallers = packageInstallers;
+
         DirCleaner = dirCleaner;
         DirMaker = dirMaker;
         DirCopier = dirCopier;
+
         GitClient = gitClient;
+        CursorChanger = cursorChanger;
+        Pinner = pinner;
         _fileSerializer = fileSerializer;
-        PackageInstallers = packageInstallers;
     }
 
     public InitAllConfig GetConfigFromJson()

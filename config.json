@@ -39,5 +39,8 @@
     {"from" : "Backup/Books", "to":"~/Stuff/Books"},
     {"from" : "Backup/Movies", "to":"~/Stuff/Movies"},
     {"from" : "Backup/Sec", "to":"~/Stuff/Sec"}
-  ]
+  ],
+  
+  "os_theme" : "dark",
+  "cursor_theme" : "dark"
 }

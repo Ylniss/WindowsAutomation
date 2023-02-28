@@ -1,8 +1,10 @@
-﻿namespace WindowsAutomation.Shared.Filesystem.DirCleaner;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.Shared.Filesystem.DirCleaner;
 
 public interface IDirCleaner
 {
-    public IObservable<string> WhenRemoveStarted { get; }
+    RxEvent<string> WhenRemove { get; }
     void RemoveAllFilesInDir(string directory);
     void RemoveFileIfExists(string directory);
     void CleanRecycleBin();

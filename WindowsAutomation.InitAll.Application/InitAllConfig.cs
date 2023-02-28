@@ -1,4 +1,5 @@
 ﻿using WindowsAutomation.Shared;
+using WindowsAutomation.Shared.Os.Windows;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -33,9 +34,11 @@ public record InitAllConfig
     public Paths Paths { get; }
     public string[] FolderStructure { get; }
     public CopyPaths[] CopyDirectories { get; }
+    public Theme OsTheme { get; }
+    public Theme CursorTheme { get; }
 
     public InitAllConfig(GithubCredentials githubCredentials, string[] reposToClone, Paths paths,
-        string[] folderStructure, CopyPaths[] copyDirectories)
+        string[] folderStructure, CopyPaths[] copyDirectories, Theme osTheme, Theme cursorTheme)
     {
         GithubCredentials = githubCredentials;
         ReposToClone = reposToClone;
@@ -45,5 +48,7 @@ public record InitAllConfig
             directory.Replace("~", Constants.CommonPaths.User)).ToArray();
 
         CopyDirectories = copyDirectories;
+        OsTheme = osTheme;
+        CursorTheme = cursorTheme;
     }
 }

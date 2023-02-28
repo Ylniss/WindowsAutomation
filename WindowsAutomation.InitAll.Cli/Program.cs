@@ -1,9 +1,9 @@
-﻿using System.Reactive.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WindowsAutomation.InitAll.Application;
 using WindowsAutomation.InitAll.Application.PackageInstallers;
 using WindowsAutomation.InitAll.Application.PackageInstallers.MyPackageInstaller;
+using WindowsAutomation.InitAll.Cli;
 using WindowsAutomation.Shared;
 
 Console.WriteLine(" ---------- Running Windows initialization script ---------- ");
@@ -43,14 +43,18 @@ catch (Exception e)
 static async Task RunCoreLogic(IInitAllRunner initAllRunner)
 {
     var config = initAllRunner.GetConfigFromJson();
+    //
+    // await initAllRunner.InstallPackages();
+    //
+    // initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
+    // initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
+    //
+    // initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
+    // initAllRunner.CopyDirectories(config.CopyDirectories);
+    //
+    // initAllRunner.CursorChanger.SetCursorTheme(config.CursorTheme);
 
-    await initAllRunner.InstallPackages();
-
-    initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
-    initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
-
-    initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
-    initAllRunner.CopyDirectories(config.CopyDirectories);
+    initAllRunner.Pinner.PinToQuickAccess(config.CopyDirectories[0].To);
 
     initAllRunner.CleanDesktopAndRecycleBin();
 }
@@ -61,85 +65,15 @@ static void SetupConsoleEvents(IInitAllRunner initAllRunner)
         initAllRunner.PackageInstallers.SingleOrDefault(installer =>
             installer is ChocoPackageInstaller) as ChocoPackageInstaller;
 
-    chocoAppsInstaller?.WhenInstallStarted
-        .Where(installationStep => installationStep.Package.Contains(Constants.ChocoPackagesConfig))
-        .Subscribe(installationStep =>
-            Console.WriteLine($"Installation from {installationStep.Package} started..."));
-
-    chocoAppsInstaller?.WhenInstallStarted
-        .Where(installationStep => !installationStep.Package.Contains(Constants.ChocoPackagesConfig))
-        .Subscribe(config =>
-            Console.WriteLine("Downloading chocolatey"));
-
-    chocoAppsInstaller?.WhenSetupOutputReceived
-        .Where(output => output.Contains("Progress: "))
-        .Subscribe(output => Console.Write($"\r{output}"));
-
-    chocoAppsInstaller?.WhenSetupOutputReceived
-        .Where(output => !output.Contains("Progress: "))
-        .Subscribe(Console.WriteLine);
-
-    chocoAppsInstaller?.WhenDownloadStarted?.Subscribe(uri =>
-        Console.WriteLine($"Download from '{uri}' started..."));
-
-    chocoAppsInstaller?.WhenDownloadProgressReceived?
-        .Where(progress => progress is not null)
-        .Subscribe(progress =>
-            Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
-
+    ConsoleEvents.SetupChocoAppsInstaller(chocoAppsInstaller);
 
     var myAppsInstaller =
         initAllRunner.PackageInstallers.SingleOrDefault(installer => installer is MyPackageInstaller) as
             MyPackageInstaller;
 
-    myAppsInstaller?.WhenInstallStarted
-        .Where(installationStep => installationStep.Step == InstallationStep.Download)
-        .Subscribe(step =>
-            Console.WriteLine($"\n{step.Package} download started..."));
+    ConsoleEvents.SetupMyAppsInstaller(myAppsInstaller);
 
-    myAppsInstaller?.WhenInstallStarted
-        .Where(installationStep => installationStep.Step == InstallationStep.Extract)
-        .Where(installationStep => installationStep.Destination is not null)
-        .Subscribe(step =>
-            Console.WriteLine($"\nExtracting '{step.Package}' to '{step.Destination}'"));
-
-    myAppsInstaller?.WhenInstallStarted
-        .Where(installationStep => installationStep.Step == InstallationStep.RunSetup)
-        .Subscribe(step =>
-            Console.Write($"\n{step.Package} installation started... "));
-
-    myAppsInstaller?.WhenSetupOutputReceived
-        .Where(output => !string.IsNullOrEmpty(output))
-        .Subscribe(Console.WriteLine);
-
-    myAppsInstaller?.WhenInstallStarted
-        .Subscribe(_ => { }, () => Console.WriteLine("Done."));
-
-    myAppsInstaller?.WhenDownloadStarted?.Subscribe(uri =>
-        Console.WriteLine($"Download from '{uri}' started..."));
-
-    myAppsInstaller?.WhenDownloadProgressReceived?
-        .Where(progress => progress is not null)
-        .Subscribe(progress =>
-            Console.Write($"\rDownload progress: {progress * 100: 0.00}%"));
-
-    initAllRunner.GitClient.WhenGitCloneStarted.Subscribe(
-        tuple => Console.WriteLine($"Cloning repo '{tuple.repo}' to '{tuple.destination}'..."),
-        exception => Console.WriteLine($"Could not clone repo: {exception.Message}"));
-
-
-    initAllRunner.DirCleaner.WhenRemoveStarted
-        .Where(dir => !dir.Contains(Constants.ProfileName))
-        .Subscribe(dir =>
-            Console.WriteLine($"Removing files in '{dir}'..."));
-
-    initAllRunner.DirMaker.WhenMakeDirStarted
-        .Subscribe(dir =>
-            Console.WriteLine($"Creating directory: '{dir}'..."));
-
-    initAllRunner.DirCopier.WhenCopyStarted.Subscribe(
-        dirs => Console.WriteLine($"Copying from '{dirs.source}' to '{dirs.destination}'..."));
-
-    initAllRunner.DirCopier.WhenSourceDirNotFound.Subscribe(
-        dir => Console.WriteLine($"Could not copy, directory not found: '{dir}'"));
+    ConsoleEvents.SetupGit(initAllRunner);
+    ConsoleEvents.SetupFilesystem(initAllRunner);
+    ConsoleEvents.SetupOs(initAllRunner);
 }

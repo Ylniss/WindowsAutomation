@@ -1,35 +1,31 @@
-﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
+using WindowsAutomation.Shared.Rx;
 
 namespace WindowsAutomation.Shared.Git;
 
 public class GitClient : IGitClient
 {
-    public UsernamePasswordCredentials User { get; set; }
+    public UsernamePasswordCredentials? User { get; set; }
 
-    private readonly Subject<(string repo, string destination)> _whenGitCloneStarted = new();
-    public IObservable<(string repo, string destination)> WhenGitCloneStarted => _whenGitCloneStarted.AsObservable();
+    public RxEvent<Repo> WhenGitClone { get; } = new();
 
-    public void CloneIfNotExists(string gitRepoName, string repo)
+    public void CloneIfNotExists(string gitRepoName, string repoUri)
     {
         if (User is null) throw new InvalidOperationException($"{nameof(User)} must be initialized");
 
-        var gitRepoPath = $"""{repo}\{gitRepoName}""";
+        var gitRepoPath = $"""{repoUri}\{gitRepoName}""";
         if (Directory.Exists(gitRepoPath)) return;
 
-        _whenGitCloneStarted.OnNext((gitRepoName, gitRepoPath));
-        try
-        {
-            Repository.Clone($"https://github.com/{User.Username}/{gitRepoName}.git", gitRepoPath,
-                new CloneOptions
-                {
-                    CredentialsProvider = (_, _, _) => User
-                });
-        }
-        catch (Exception ex)
-        {
-            _whenGitCloneStarted.OnError(ex);
-        }
+        Repo repo = new(gitRepoName, gitRepoPath);
+
+        WhenGitClone.Act(repo,
+            r =>
+            {
+                Repository.Clone($"https://github.com/{User.Username}/{r.Name}.git", r.Destination,
+                    new CloneOptions
+                    {
+                        CredentialsProvider = (_, _, _) => User
+                    });
+            });
     }
 }

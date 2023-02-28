@@ -3,6 +3,8 @@ using WindowsAutomation.Shared.Filesystem.DirCleaner;
 using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
 using WindowsAutomation.Shared.Git;
+using WindowsAutomation.Shared.Os.Windows.CursorChanger;
+using WindowsAutomation.Shared.Os.Windows.Pinner;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -14,6 +16,8 @@ public interface IInitAllRunner
     IDirMaker DirMaker { get; }
     IDirCopier DirCopier { get; }
     IGitClient GitClient { get; }
+    ICursorChanger CursorChanger { get; }
+    IPinner Pinner { get; }
 
     InitAllConfig GetConfigFromJson();
     Task InstallPackages();

@@ -1,8 +1,10 @@
-﻿namespace WindowsAutomation.Shared.Filesystem.DirCopier;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.Shared.Filesystem.DirCopier;
 
 public interface IDirCopier
 {
-    IObservable<(string source, string destination)> WhenCopyStarted { get; }
-    IObservable<string> WhenSourceDirNotFound { get; }
+    public RxEvent<(string source, string destination)> WhenCopy { get; }
+
     void CopyDirectory(string sourceDir, string destinationDir, bool recursive = true);
 }

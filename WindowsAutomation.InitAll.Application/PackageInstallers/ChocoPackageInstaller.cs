@@ -25,11 +25,6 @@ public class ChocoPackageInstaller : IPackageInstaller
         WhenSetupOutputReceived = _shellRunner.WhenOutputReceived;
     }
 
-    private async Task InstallChoco()
-    {
-        await _shellRunner.RunScriptFromWeb(ChocoInstallUri);
-    }
-
     public async Task InstallPackages()
     {
         _whenInstallStarted.OnNext(new PackageInstallationStep(ChocoInstallUri, InstallationStep.RunScript));
@@ -39,5 +34,10 @@ public class ChocoPackageInstaller : IPackageInstaller
             InstallationStep.RunScript));
         await Task.Run(() =>
             _shellRunner.RunScript($"choco install {Constants.ChocoPackagesConfig} -y --acceptlicense --force"));
+    }
+
+    private async Task InstallChoco()
+    {
+        await _shellRunner.RunScriptFromWeb(ChocoInstallUri);
     }
 }

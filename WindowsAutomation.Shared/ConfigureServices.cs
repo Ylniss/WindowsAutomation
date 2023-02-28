@@ -5,6 +5,8 @@ using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
 using WindowsAutomation.Shared.Filesystem.Serializers;
 using WindowsAutomation.Shared.Git;
+using WindowsAutomation.Shared.Os.Windows.CursorChanger;
+using WindowsAutomation.Shared.Os.Windows.Pinner;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
 using WindowsAutomation.Shared.Web;
@@ -16,16 +18,19 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
-        services.AddScoped<IMyHttpClientFactory, MyHttpClientFactory>();
-        services.AddScoped<IShellRunner, PowerShellRunner>();
-        services.AddScoped<IWebDownloader, WebDownloader>();
-        services.AddScoped<IRegexExtractor, RegexExtractor>();
-        services.AddScoped<IFileSerializer, JsonFileSerializer>();
-        services.AddScoped<IZipper, Zipper>();
-        services.AddScoped<IDirMaker, DirMaker>();
-        services.AddScoped<IDirCleaner, DirCleaner>();
-        services.AddScoped<IDirCopier, DirCopier>();
-        services.AddScoped<IGitClient, GitClient>();
+        services
+            .AddScoped<IMyHttpClientFactory, MyHttpClientFactory>()
+            .AddScoped<IShellRunner, PowerShellRunner>()
+            .AddScoped<IWebDownloader, WebDownloader>()
+            .AddScoped<IRegexExtractor, RegexExtractor>()
+            .AddScoped<IFileSerializer, JsonFileSerializer>()
+            .AddScoped<IZipper, Zipper>()
+            .AddScoped<IDirMaker, DirMaker>()
+            .AddScoped<IDirCleaner, DirCleaner>()
+            .AddScoped<IDirCopier, DirCopier>()
+            .AddScoped<IGitClient, GitClient>()
+            .AddScoped<ICursorChanger, CursorChanger>()
+            .AddScoped<IPinner, Pinner>();
 
         return services;
     }

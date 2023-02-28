@@ -1,51 +1,44 @@
-﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
+﻿using WindowsAutomation.Shared.Rx;
 
 namespace WindowsAutomation.Shared.Filesystem.DirCopier;
 
 public class DirCopier : IDirCopier
 {
-    private readonly Subject<(string source, string destination)> _whenCopyStarted = new();
-    public IObservable<(string source, string destination)> WhenCopyStarted => _whenCopyStarted.AsObservable();
-
-    private readonly Subject<string> _whenSourceDirNotFound = new();
-    public IObservable<string> WhenSourceDirNotFound => _whenSourceDirNotFound.AsObservable();
+    public RxEvent<(string source, string destination)> WhenCopy { get; } = new();
 
     private bool _eventRaised;
 
     public void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
     {
-        if (!_eventRaised)
+        WhenCopy.Act((sourceDir, destinationDir), _ =>
         {
-            _whenCopyStarted.OnNext((sourceDir, destinationDir));
-            _eventRaised = true;
-        }
+            if (!_eventRaised) _eventRaised = true;
 
-        var dir = new DirectoryInfo(sourceDir);
+            var dir = new DirectoryInfo(sourceDir);
 
-        if (!dir.Exists)
-        {
-            _whenSourceDirNotFound.OnNext(dir.FullName);
-            _eventRaised = false;
-            return;
-        }
+            if (!dir.Exists)
+            {
+                _eventRaised = false;
+                throw new DirectoryNotFoundException(dir.FullName);
+            }
 
-        var dirs = dir.GetDirectories();
-        Directory.CreateDirectory(destinationDir);
+            var dirs = dir.GetDirectories();
+            Directory.CreateDirectory(destinationDir);
 
-        foreach (var fileInfo in dir.GetFiles())
-        {
-            var targetFilePath = Path.Combine(destinationDir, fileInfo.Name);
-            fileInfo.CopyTo(targetFilePath, true);
-        }
+            foreach (var fileInfo in dir.GetFiles())
+            {
+                var targetFilePath = Path.Combine(destinationDir, fileInfo.Name);
+                fileInfo.CopyTo(targetFilePath, true);
+            }
 
-        if (!dirs.Any()) _eventRaised = false;
-        if (!recursive) return;
+            if (!dirs.Any()) _eventRaised = false;
+            if (!recursive) return;
 
-        foreach (var subDir in dirs)
-        {
-            var newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-            CopyDirectory(subDir.FullName, newDestinationDir, true);
-        }
+            foreach (var subDir in dirs)
+            {
+                var newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                CopyDirectory(subDir.FullName, newDestinationDir, true);
+            }
+        });
     }
 }

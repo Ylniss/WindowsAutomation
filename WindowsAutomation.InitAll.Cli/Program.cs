@@ -45,20 +45,21 @@ static async Task RunCoreLogic(IInitAllRunner initAllRunner)
 {
     var config = initAllRunner.GetConfigFromJson();
 
-    await initAllRunner.InstallPackages();
-
-    initAllRunner.SetupStartupApplications(config.StartupApps);
-
-    initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
-    initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
-
-    initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
-    initAllRunner.CopyDirectories(config.CopyDirectories);
-    initAllRunner.CreateShortcuts(config.ShortcutDirectories);
-    initAllRunner.PinDirectoriesToQuickAccess(config.PinToQuickAccess);
-
-    initAllRunner.CursorChanger.SetCursorTheme(config.CursorTheme);
-    initAllRunner.CleanDesktopAndRecycleBin();
+    // await initAllRunner.InstallPackages();
+    //
+    // initAllRunner.SetupStartupApplications(config.StartupApps);
+    //
+    // initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
+    // initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");
+    //
+    // initAllRunner.CreateInitialFolderStructure(config.FolderStructure);
+    // initAllRunner.CopyDirectories(config.CopyDirectories);
+    // initAllRunner.CreateShortcuts(config.ShortcutDirectories);
+    // initAllRunner.PinDirectoriesToQuickAccess(config.PinToQuickAccess);
+    //
+    // initAllRunner.CursorChanger.SetCursorTheme(config.CursorTheme);
+    initAllRunner.SystemDateTimeChanger.ChangeTimeZone(config.TimeZoneId);
+    // initAllRunner.CleanDesktopAndRecycleBin();
 }
 
 static ConsoleEvents SetupConsoleEvents(IInitAllRunner initAllRunner)

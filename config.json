@@ -61,5 +61,7 @@
     "C:/Program Files/Google/Chrome/Application/chrome.exe"
   ],
 
-  "cursor_theme" : "dark"
+  "cursor_theme" : "dark",
+
+  "time_zone_id" : "Central European Standard Time"
 }

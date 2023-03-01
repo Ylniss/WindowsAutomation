@@ -10,6 +10,7 @@ using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
 using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
+using WindowsAutomation.Shared.Os.Windows.SystemDateTimeChanger;
 
 namespace WindowsAutomation.InitAll.Application;
 
@@ -25,12 +26,13 @@ public class WindowsInitAllRunner : IInitAllRunner
     public ICursorChanger CursorChanger { get; }
     public IPinner Pinner { get; }
     public IStartupAppsAdder StartupAppsAdder { get; }
-
+    public ISystemDateTimeChanger SystemDateTimeChanger { get; }
+    
     private readonly IFileSerializer _fileSerializer;
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
         IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer,
-        ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder)
+        ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder, ISystemDateTimeChanger systemDateTimeChanger)
     {
         PackageInstallers = packageInstallers;
 
@@ -42,6 +44,7 @@ public class WindowsInitAllRunner : IInitAllRunner
         CursorChanger = cursorChanger;
         Pinner = pinner;
         StartupAppsAdder = startupAppsAdder;
+        SystemDateTimeChanger = systemDateTimeChanger;
         _fileSerializer = fileSerializer;
     }
 

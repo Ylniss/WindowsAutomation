@@ -38,11 +38,12 @@ public record InitAllConfig
     public SourceTargetPaths[] CopyDirectories { get; }
     public string[] PinToQuickAccess { get; }
     public Theme CursorTheme { get; }
+    public string TimeZoneId { get; }
 
     public InitAllConfig(GithubCredentials githubCredentials, string[] reposToClone, Paths paths,
         string[] folderStructure, SourceTargetPaths[] copyDirectories, SourceTargetPaths[] shortcutDirectories,
         string[] pinToQuickAccess, string[] startupApps,
-        Theme cursorTheme)
+        Theme cursorTheme, string timeZoneId)
     {
         GithubCredentials = githubCredentials;
         ReposToClone = reposToClone;
@@ -61,5 +62,6 @@ public record InitAllConfig
         PinToQuickAccess = pinToQuickAccess.Select(directory => directory.AsWindowsPath()).ToArray();
 
         CursorTheme = cursorTheme;
+        TimeZoneId = timeZoneId;
     }
 }

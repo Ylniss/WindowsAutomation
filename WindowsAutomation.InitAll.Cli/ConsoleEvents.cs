@@ -61,6 +61,16 @@ public class ConsoleEvents
 
         initAllRunner.StartupAppsAdder.WhenAppStartupAdd.Error
             .Subscribe(exception => CouldNot("add app to startup", exception.Message));
+
+
+        initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Started
+            .Subscribe(timeZoneId => Console.Write($"Changing time zone to '{timeZoneId}'..."));
+
+        initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Finished
+            .Subscribe(_ => DoneMessage());
+
+        initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Error
+            .Subscribe(exception => CouldNot("change time zone", exception.Message));
     }
 
     public void SetupFilesystem(IInitAllRunner initAllRunner)

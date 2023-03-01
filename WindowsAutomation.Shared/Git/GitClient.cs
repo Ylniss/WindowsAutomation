@@ -14,8 +14,6 @@ public class GitClient : IGitClient
         if (User is null) throw new InvalidOperationException($"{nameof(User)} must be initialized");
 
         var gitRepoPath = $"""{repoUri}\{gitRepoName}""";
-        if (Directory.Exists(gitRepoPath)) return;
-
         Repo repo = new(gitRepoName, gitRepoPath);
 
         WhenGitClone.Act(repo,

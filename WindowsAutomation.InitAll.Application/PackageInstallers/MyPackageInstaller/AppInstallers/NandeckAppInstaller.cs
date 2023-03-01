@@ -19,18 +19,20 @@ public class NandeckAppInstaller : AppInstaller
 
     public override async Task InstallApp()
     {
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.Download));
-        await DownloadApp();
+        await WhenInstall.ActAsync(new PackageInstallationStep(AppName, InstallationStep.Download), async step =>
+        {
+            await DownloadApp();
 
-        var destination = Directory.GetParent(SetupPath)!.FullName;
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.Extract, destination));
-        _zipper.Extract(SetupPath, Directory.GetParent(SetupPath)!.FullName);
-        _whenInstallStarted.OnCompleted();
+            var destination = Directory.GetParent(SetupPath)!.FullName;
+            WhenInstall.StartedSubject.OnNext(new PackageInstallationStep(AppName, InstallationStep.Extract,
+                destination));
+            _zipper.Extract(SetupPath, Directory.GetParent(SetupPath)!.FullName);
+        });
     }
 
     private async Task DownloadApp()
     {
-        await _webDownloader.ExtractLinkAndDownloadFile(
+        await WebDownloader.ExtractLinkAndDownloadFile(
             new WebFileDownload("""https://www.nandeck.com/""",
                 SetupPath),
             new RegexGroupNameMatch(

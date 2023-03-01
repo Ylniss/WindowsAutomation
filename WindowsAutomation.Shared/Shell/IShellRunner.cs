@@ -1,8 +1,10 @@
-﻿namespace WindowsAutomation.Shared.Shell;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.Shared.Shell;
 
 public interface IShellRunner
 {
-    IObservable<string> WhenOutputReceived { get; }
+    public RxEvent<string> WhenOutputReceive { get; }
     public IObservable<string>? WhenDownloadStarted { get; }
     public IObservable<double?>? WhenDownloadProgressReceived { get; }
 

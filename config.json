@@ -48,16 +48,17 @@
 
   "pin_to_quick_access" : [
     "~/Stuff",
-    "~/Stuff/Downloads",
+    "~/Stuff/Repo",
+    "~/Stuff/BoardGame Design",
     "~/Stuff/Vfx",
     "~/Stuff/Graphics",
     "~/Stuff/Photos",
-    "~/Stuff/BoardGame Design",
     "~/Stuff/Work"
   ],
 
   "startup_apps" : [
-    "~/AppData/Local/Programs/Notion/Notion.exe"
+    "~/AppData/Local/Programs/Notion/Notion.exe",
+    "C:/Program Files/Google/Chrome/Application/chrome.exe"
   ],
 
   "cursor_theme" : "dark"

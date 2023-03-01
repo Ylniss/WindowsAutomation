@@ -1,8 +1,7 @@
 ﻿using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Microsoft.PowerShell;
+using WindowsAutomation.Shared.Rx;
 using WindowsAutomation.Shared.Web.Downloader;
 
 namespace WindowsAutomation.Shared.Shell;
@@ -11,8 +10,7 @@ public class PowerShellRunner : IShellRunner
 {
     private readonly IWebDownloader _webDownloader;
 
-    private readonly Subject<string> _whenOutputReceived = new();
-    public IObservable<string> WhenOutputReceived => _whenOutputReceived.AsObservable();
+    public RxEvent<string> WhenOutputReceive { get; } = new();
     public IObservable<string> WhenDownloadStarted { get; }
     public IObservable<double?> WhenDownloadProgressReceived { get; }
 
@@ -51,7 +49,7 @@ public class PowerShellRunner : IShellRunner
             if (sender is not PSDataCollection<PSObject> records) return;
             var newRecord = records[e.Index];
 
-            _whenOutputReceived.OnNext(newRecord.BaseObject.ToString() ?? string.Empty);
+            WhenOutputReceive.StartedSubject.OnNext(newRecord.BaseObject.ToString() ?? string.Empty);
         };
     }
 }

@@ -1,11 +1,13 @@
-﻿namespace WindowsAutomation.InitAll.Application.PackageInstallers;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.InitAll.Application.PackageInstallers;
 
 public interface IPackageInstaller
 {
-    IObservable<PackageInstallationStep> WhenInstallStarted { get; }
+    public RxEvent<PackageInstallationStep> WhenInstall { get; }
+    public RxEvent<string> WhenSetupOutputReceive { get; }
     IObservable<string>? WhenDownloadStarted { get; }
     IObservable<double?>? WhenDownloadProgressReceived { get; }
-    IObservable<string> WhenSetupOutputReceived { get; }
 
     Task InstallPackages();
 }

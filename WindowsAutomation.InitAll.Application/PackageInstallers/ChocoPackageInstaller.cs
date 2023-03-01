@@ -1,6 +1,5 @@
-﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using WindowsAutomation.Shared;
+﻿using WindowsAutomation.Shared;
+using WindowsAutomation.Shared.Rx;
 using WindowsAutomation.Shared.Shell;
 
 namespace WindowsAutomation.InitAll.Application.PackageInstallers;
@@ -11,29 +10,32 @@ public class ChocoPackageInstaller : IPackageInstaller
 
     private readonly IShellRunner _shellRunner;
 
-    private readonly Subject<PackageInstallationStep> _whenInstallStarted = new();
-    public IObservable<PackageInstallationStep> WhenInstallStarted => _whenInstallStarted.AsObservable();
+    public RxEvent<PackageInstallationStep> WhenInstall { get; } = new();
+    public RxEvent<string> WhenSetupOutputReceive { get; }
     public IObservable<string>? WhenDownloadStarted { get; }
     public IObservable<double?>? WhenDownloadProgressReceived { get; }
-    public IObservable<string> WhenSetupOutputReceived { get; }
 
     public ChocoPackageInstaller(IShellRunner shellRunner)
     {
         _shellRunner = shellRunner;
         WhenDownloadStarted = _shellRunner.WhenDownloadStarted;
         WhenDownloadProgressReceived = _shellRunner.WhenDownloadProgressReceived;
-        WhenSetupOutputReceived = _shellRunner.WhenOutputReceived;
+        WhenSetupOutputReceive = _shellRunner.WhenOutputReceive;
     }
 
     public async Task InstallPackages()
     {
-        _whenInstallStarted.OnNext(new PackageInstallationStep(ChocoInstallUri, InstallationStep.RunScript));
-        await InstallChoco();
+        await WhenInstall.ActAsync(new PackageInstallationStep(ChocoInstallUri, InstallationStep.RunScript),
+            async _ =>
+            {
+                await InstallChoco();
 
-        _whenInstallStarted.OnNext(new PackageInstallationStep(Constants.ChocoPackagesConfig,
-            InstallationStep.RunScript));
-        await Task.Run(() =>
-            _shellRunner.RunScript($"choco install {Constants.ChocoPackagesConfig} -y --acceptlicense --force"));
+                WhenInstall.StartedSubject.OnNext(new PackageInstallationStep(Constants.ChocoPackagesConfig,
+                    InstallationStep.RunScript));
+                await Task.Run(() =>
+                    _shellRunner.RunScript(
+                        $"choco install {Constants.ChocoPackagesConfig} -y --acceptlicense --force"));
+            });
     }
 
     private async Task InstallChoco()

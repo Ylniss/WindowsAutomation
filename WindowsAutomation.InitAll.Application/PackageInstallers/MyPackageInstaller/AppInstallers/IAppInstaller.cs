@@ -1,11 +1,13 @@
-﻿namespace WindowsAutomation.InitAll.Application.PackageInstallers.MyPackageInstaller.AppInstallers;
+﻿using WindowsAutomation.Shared.Rx;
+
+namespace WindowsAutomation.InitAll.Application.PackageInstallers.MyPackageInstaller.AppInstallers;
 
 public interface IAppInstaller
 {
     string AppName { get; }
     string SetupPath { get; }
-    IObservable<PackageInstallationStep> WhenInstallStarted { get; }
-    IObservable<string> WhenSetupOutputReceived { get; }
+    RxEvent<PackageInstallationStep> WhenInstall { get; }
+    RxEvent<string> WhenSetupOutputReceive { get; }
 
     Task InstallApp();
 }

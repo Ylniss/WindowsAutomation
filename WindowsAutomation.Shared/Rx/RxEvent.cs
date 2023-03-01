@@ -5,18 +5,35 @@ namespace WindowsAutomation.Shared.Rx;
 
 public class RxEvent<T>
 {
-    private readonly Subject<T> _started = new();
-    public IObservable<T> Started => _started.AsObservable();
+    public readonly Subject<T> StartedSubject = new();
+    public IObservable<T> Started { get; private set; }
 
-    private readonly Subject<T> _finished = new();
-    public IObservable<T> Finished => _finished.AsObservable();
 
-    private readonly Subject<Exception> _error = new();
-    public IObservable<Exception> Error => _error.AsObservable();
+    public readonly Subject<T> FinishedSubject = new();
+    public IObservable<T> Finished { get; private set; }
+
+
+    public readonly Subject<Exception> ErrorSubject = new();
+    public IObservable<Exception> Error { get; private set; }
+
+    public RxEvent()
+    {
+        Started = StartedSubject.AsObservable();
+        Finished = FinishedSubject.AsObservable();
+        Error = ErrorSubject.AsObservable();
+    }
+
+    public void Merge(IEnumerable<RxEvent<T>> rxEvents)
+    {
+        rxEvents = rxEvents.ToList();
+        Started = rxEvents.Select(rxEvent => rxEvent.Started).Merge();
+        Finished = rxEvents.Select(rxEvent => rxEvent.Finished).Merge();
+        Error = rxEvents.Select(rxEvent => rxEvent.Error).Merge();
+    }
 
     public void Act(T argument, Action<T> action)
     {
-        _started.OnNext(argument);
+        StartedSubject.OnNext(argument);
 
         try
         {
@@ -24,10 +41,27 @@ public class RxEvent<T>
         }
         catch (Exception ex)
         {
-            _error.OnNext(ex);
+            ErrorSubject.OnNext(ex);
             return;
         }
 
-        _finished.OnNext(argument);
+        FinishedSubject.OnNext(argument);
+    }
+
+    public async Task ActAsync(T argument, Func<T, Task> action)
+    {
+        StartedSubject.OnNext(argument);
+
+        try
+        {
+            await action(argument);
+        }
+        catch (Exception ex)
+        {
+            ErrorSubject.OnNext(ex);
+            return;
+        }
+
+        FinishedSubject.OnNext(argument);
     }
 }

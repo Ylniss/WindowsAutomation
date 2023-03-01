@@ -19,22 +19,23 @@ public class ResolumeAppInstaller : AppInstaller
 
     public override async Task InstallApp()
     {
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.Download));
-        await DownloadApp();
+        await WhenInstall.ActAsync(new PackageInstallationStep(AppName, InstallationStep.Download), async step =>
+        {
+            await DownloadApp();
 
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
+            WhenInstall.StartedSubject.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
 
-        var cmd = Cli.Wrap("cmd")
-            .WithArguments(a => a.Add("/c").Add(SetupPath).Add("/SP-").Add("/VERYSILENT"));
+            var cmd = Cli.Wrap("cmd")
+                .WithArguments(a => a.Add("/c").Add(SetupPath).Add("/SP-").Add("/VERYSILENT"));
 
-        var result = await cmd.ExecuteBufferedAsync();
-        _whenSetupOutputReceived.OnNext(result.StandardOutput);
-        _whenInstallStarted.OnCompleted();
+            var result = await cmd.ExecuteBufferedAsync();
+            WhenSetupOutputReceive.StartedSubject.OnNext(result.StandardOutput);
+        });
     }
 
     private async Task DownloadApp()
     {
-        await _webDownloader.ExtractLinkAndDownloadFile(
+        await WebDownloader.ExtractLinkAndDownloadFile(
             new WebFileDownload("""https://resolume.com/download/?file=latest_arena""",
                 SetupPath),
             new RegexGroupNameMatch(

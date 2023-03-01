@@ -25,22 +25,23 @@ public class GmicAppInstaller : AppInstaller
 
     public override async Task InstallApp()
     {
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.Download));
-        await DownloadApp();
+        await WhenInstall.ActAsync(new PackageInstallationStep(AppName, InstallationStep.Download), async step =>
+        {
+            await DownloadApp();
 
-        _whenInstallStarted.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
+            WhenInstall.StartedSubject.OnNext(new PackageInstallationStep(AppName, InstallationStep.RunSetup));
 
-        var cmd = Cli.Wrap("cmd")
-            .WithArguments(a => a.Add("/c").Add(SetupPath).Add("/SP-").Add("/VERYSILENT"));
+            var cmd = Cli.Wrap("cmd")
+                .WithArguments(a => a.Add("/c").Add(SetupPath).Add("/SP-").Add("/VERYSILENT"));
 
-        var result = await cmd.ExecuteBufferedAsync();
-        _whenSetupOutputReceived.OnNext(result.StandardOutput);
-        _whenInstallStarted.OnCompleted();
+            var result = await cmd.ExecuteBufferedAsync();
+            WhenSetupOutputReceive.StartedSubject.OnNext(result.StandardOutput);
+        });
     }
 
     private async Task DownloadApp()
     {
-        var html = await _webDownloader.DownloadContent("""https://www.fosshub.com/GMIC.html""");
+        var html = await WebDownloader.DownloadContent("""https://www.fosshub.com/GMIC.html""");
 
         var projectId = _regexExtractor.Extract(html,
             new RegexGroupNameMatch("""GMIC","projectId":"(?<projectid>.*)","pool":{""", "projectid"));
@@ -51,7 +52,7 @@ public class GmicAppInstaller : AppInstaller
             new RegexGroupNameMatch("""_win64.exe"\sdata-file="(?<filename>.*)"\srel="nofollow""",
                 "filename"));
 
-        var response = await _webDownloader.HttpClient.PostAsync("""https://api.fosshub.com/download/""",
+        var response = await WebDownloader.HttpClient.PostAsync("""https://api.fosshub.com/download/""",
             new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("fileName", fileName),
@@ -63,6 +64,6 @@ public class GmicAppInstaller : AppInstaller
 
         var content = await response.Content.ReadAsAsync<GmicServerResponse>();
 
-        await _webDownloader.DownloadFile(new WebFileDownload(content.Data.Url, SetupPath));
+        await WebDownloader.DownloadFile(new WebFileDownload(content.Data.Url, SetupPath));
     }
 }

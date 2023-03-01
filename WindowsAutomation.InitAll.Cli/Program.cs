@@ -22,15 +22,16 @@ try
     var initAllRunner = provider.GetService<IInitAllRunner>();
     if (initAllRunner is null) throw new ApplicationException("IInitAllRunner not injected properly.");
 
-    SetupConsoleEvents(initAllRunner);
+    var consoleEvents = SetupConsoleEvents(initAllRunner);
     await RunCoreLogic(initAllRunner);
 
+    consoleEvents.WriteErrors();
     Console.WriteLine("\n ---------- Windows initialization script finished ---------- ");
     Console.ReadKey();
 }
 catch (Exception e)
 {
-    Console.WriteLine($"\nError occured during initialization:\n{e.Message}\n{e.InnerException?.Message}");
+    Console.WriteLine($"\nFatal error occured during initialization:\n{e.Message}\n{e.InnerException?.Message}");
 #if (DEBUG)
     Console.WriteLine($"\n{e.StackTrace}");
 #endif
@@ -60,23 +61,27 @@ static async Task RunCoreLogic(IInitAllRunner initAllRunner)
     initAllRunner.CleanDesktopAndRecycleBin();
 }
 
-static void SetupConsoleEvents(IInitAllRunner initAllRunner)
+static ConsoleEvents SetupConsoleEvents(IInitAllRunner initAllRunner)
 {
-    ConsoleEvents.SetupGeneralInstaller(initAllRunner.PackageInstallers.FirstOrDefault());
+    ConsoleEvents consoleEvents = new();
+
+    consoleEvents.SetupGeneralInstaller(initAllRunner.PackageInstallers.FirstOrDefault());
 
     var chocoAppsInstaller =
         initAllRunner.PackageInstallers.SingleOrDefault(installer =>
             installer is ChocoPackageInstaller) as ChocoPackageInstaller;
 
-    ConsoleEvents.SetupChocoAppsInstaller(chocoAppsInstaller);
+    consoleEvents.SetupChocoAppsInstaller(chocoAppsInstaller);
 
     var myAppsInstaller =
         initAllRunner.PackageInstallers.SingleOrDefault(installer => installer is MyPackageInstaller) as
             MyPackageInstaller;
 
-    ConsoleEvents.SetupMyAppsInstaller(myAppsInstaller);
+    consoleEvents.SetupMyAppsInstaller(myAppsInstaller);
 
-    ConsoleEvents.SetupGit(initAllRunner);
-    ConsoleEvents.SetupFilesystem(initAllRunner);
-    ConsoleEvents.SetupOs(initAllRunner);
+    consoleEvents.SetupGit(initAllRunner);
+    consoleEvents.SetupFilesystem(initAllRunner);
+    consoleEvents.SetupOs(initAllRunner);
+
+    return consoleEvents;
 }

@@ -31,6 +31,7 @@ public interface IInitAllRunner
     void CreateInitialFolderStructure(string[] directories);
     void CopyDirectories(SourceTargetPaths[] copyPaths);
     void PinDirectoriesToQuickAccess(string[] directories);
+    void SetSystemDateTime(InitAllConfig config);
     void CreateShortcuts(SourceTargetPaths[] paths);
     void CleanDesktopAndRecycleBin();
 }

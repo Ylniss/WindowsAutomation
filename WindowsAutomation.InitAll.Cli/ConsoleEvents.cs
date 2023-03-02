@@ -10,6 +10,8 @@ public class ConsoleEvents
 {
     private readonly List<string> _errors = new();
 
+    public bool AnyErrors => _errors.Any();
+
     public void SetupGit(IInitAllRunner initAllRunner)
     {
         initAllRunner.GitClient.WhenGitClone.Started
@@ -71,6 +73,17 @@ public class ConsoleEvents
 
         initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Error
             .Subscribe(exception => CouldNot("change time zone", exception.Message));
+
+
+        initAllRunner.SystemDateTimeChanger.WhenFormatChange.Started
+            .Subscribe(data => Console.Write($"Changing {data.locale} format to '{data.format}'..."));
+
+        initAllRunner.SystemDateTimeChanger.WhenFormatChange.Finished
+            .Subscribe(_ => DoneMessage());
+
+        initAllRunner.SystemDateTimeChanger.WhenFormatChange.Error
+            .Subscribe(exception =>
+                CouldNot("change format", $"{exception.Message}, {exception.InnerException?.Message}"));
     }
 
     public void SetupFilesystem(IInitAllRunner initAllRunner)
@@ -204,7 +217,6 @@ public class ConsoleEvents
 
     public void WriteErrors()
     {
-        Console.WriteLine("\nErrors that occured during initialization script:");
         foreach (var error in _errors) Console.WriteLine(error);
     }
 }

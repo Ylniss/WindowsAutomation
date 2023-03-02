@@ -61,7 +61,15 @@
     "C:/Program Files/Google/Chrome/Application/chrome.exe"
   ],
 
-  "cursor_theme" : "dark",
+  "time_zone_id" : "Central European Standard Time",
+  
+  "date_time_format" : {
+    "short_date" : "dd-MMM-yy",
+    "long_date" : "dddd, MMMM d, yyyy",
+    "short_time" : "HH:mm",
+    "long_time" : "HH:mm:ss",
+    "first_day_of_week" : "monday"
+  },
 
-  "time_zone_id" : "Central European Standard Time"
+  "cursor_theme" : "dark"
 }

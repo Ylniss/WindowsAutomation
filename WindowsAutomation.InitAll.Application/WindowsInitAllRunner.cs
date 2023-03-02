@@ -1,7 +1,6 @@
 ﻿using LibGit2Sharp;
 using WindowsAutomation.InitAll.Application.PackageInstallers;
 using WindowsAutomation.Shared;
-using WindowsAutomation.Shared.Extensions;
 using WindowsAutomation.Shared.Filesystem.DirCleaner;
 using WindowsAutomation.Shared.Filesystem.DirCopier;
 using WindowsAutomation.Shared.Filesystem.DirMaker;
@@ -27,12 +26,13 @@ public class WindowsInitAllRunner : IInitAllRunner
     public IPinner Pinner { get; }
     public IStartupAppsAdder StartupAppsAdder { get; }
     public ISystemDateTimeChanger SystemDateTimeChanger { get; }
-    
+
     private readonly IFileSerializer _fileSerializer;
 
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
         IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer,
-        ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder, ISystemDateTimeChanger systemDateTimeChanger)
+        ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder,
+        ISystemDateTimeChanger systemDateTimeChanger)
     {
         PackageInstallers = packageInstallers;
 
@@ -106,17 +106,29 @@ public class WindowsInitAllRunner : IInitAllRunner
 
     public void PinDirectoriesToQuickAccess(string[] directories)
     {
-        Pinner.PinToQuickAccess("~/Videos".AsWindowsPath());
-        Pinner.PinToQuickAccess("~/Music".AsWindowsPath());
-        Pinner.PinToQuickAccess("~/Documents".AsWindowsPath());
-        Pinner.PinToQuickAccess("~/Pictures".AsWindowsPath());
+        Pinner.PinToQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+        Pinner.PinToQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+        Pinner.PinToQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic));
+        Pinner.PinToQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
+        Pinner.PinToQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos));
 
-        Pinner.UnpinFromQuickAccess("~/Videos".AsWindowsPath());
-        Pinner.UnpinFromQuickAccess("~/Music".AsWindowsPath());
-        Pinner.UnpinFromQuickAccess("~/Documents".AsWindowsPath());
-        Pinner.UnpinFromQuickAccess("~/Pictures".AsWindowsPath());
+        Pinner.UnpinFromQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+        Pinner.UnpinFromQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+        Pinner.UnpinFromQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic));
+        Pinner.UnpinFromQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
+        Pinner.UnpinFromQuickAccess(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos));
 
         foreach (var directory in directories) Pinner.PinToQuickAccess(directory);
+    }
+
+    public void SetSystemDateTime(InitAllConfig config)
+    {
+        SystemDateTimeChanger.ChangeTimeZone(config.TimeZoneId);
+        SystemDateTimeChanger.ChangeFormat(Locale.ShortDateFormat, config.DateTimeFormat.ShortDate);
+        SystemDateTimeChanger.ChangeFormat(Locale.LongDateFormat, config.DateTimeFormat.LongDate);
+        SystemDateTimeChanger.ChangeFormat(Locale.ShortTimeFormat, config.DateTimeFormat.ShortTime);
+        SystemDateTimeChanger.ChangeFormat(Locale.LongTimeFormat, config.DateTimeFormat.LongTime);
+        SystemDateTimeChanger.ChangeFormat(Locale.FirstDayOfWeek, config.DateTimeFormat.FirstDayOfWeek);
     }
 
     public void CleanDesktopAndRecycleBin()

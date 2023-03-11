@@ -21,7 +21,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.GitClient.WhenGitClone.Error
-            .Subscribe(exception => CouldNot("clone repo", exception.Message));
+            .Subscribe(exception => CouldNot("clone repo", exception));
     }
 
     public void SetupOs(IInitAllRunner initAllRunner)
@@ -33,7 +33,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.CursorChanger.WhenCursorThemeSet.Error
-            .Subscribe(exception => CouldNot("change theme", exception.Message));
+            .Subscribe(exception => CouldNot("change theme", exception));
 
 
         initAllRunner.Pinner.WhenPin.Started
@@ -43,7 +43,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.Pinner.WhenPin.Error
-            .Subscribe(exception => CouldNot("pin", exception.Message));
+            .Subscribe(exception => CouldNot("pin", exception));
 
         initAllRunner.Pinner.WhenUnpin.Started
             .Subscribe(dir => Console.Write($"Unpinning'{dir}' from Quick Access..."));
@@ -52,7 +52,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.Pinner.WhenUnpin.Error
-            .Subscribe(exception => CouldNot("unpin", exception.Message));
+            .Subscribe(exception => CouldNot("unpin", exception));
 
 
         initAllRunner.StartupAppsAdder.WhenAppStartupAdd.Started
@@ -62,7 +62,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.StartupAppsAdder.WhenAppStartupAdd.Error
-            .Subscribe(exception => CouldNot("add app to startup", exception.Message));
+            .Subscribe(exception => CouldNot("add app to startup", exception));
 
 
         initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Started
@@ -72,7 +72,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Error
-            .Subscribe(exception => CouldNot("change time zone", exception.Message));
+            .Subscribe(exception => CouldNot("change time zone", exception));
 
 
         initAllRunner.SystemDateTimeChanger.WhenFormatChange.Started
@@ -83,7 +83,7 @@ public class ConsoleEvents
 
         initAllRunner.SystemDateTimeChanger.WhenFormatChange.Error
             .Subscribe(exception =>
-                CouldNot("change format", $"{exception.Message}, {exception.InnerException?.Message}"));
+                CouldNot("change format", exception));
     }
 
     public void SetupFilesystem(IInitAllRunner initAllRunner)
@@ -97,7 +97,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.DirCleaner.WhenRemove.Error
-            .Subscribe(exception => CouldNot("remove files", exception.Message));
+            .Subscribe(exception => CouldNot("remove files", exception));
 
 
         initAllRunner.DirMaker.WhenMake.Started
@@ -107,7 +107,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.DirMaker.WhenMake.Error
-            .Subscribe(exception => CouldNot("create directory", exception.Message));
+            .Subscribe(exception => CouldNot("create directory", exception));
 
 
         initAllRunner.DirMaker.WhenShortcutMake.Started
@@ -117,7 +117,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.DirMaker.WhenShortcutMake.Error
-            .Subscribe(exception => CouldNot("create shortcut", exception.Message));
+            .Subscribe(exception => CouldNot("create shortcut", exception));
 
 
         initAllRunner.DirCopier.WhenCopy.Started
@@ -127,7 +127,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         initAllRunner.DirCopier.WhenCopy.Error
-            .Subscribe(exception => CouldNot("create directory, not found", exception.Message));
+            .Subscribe(exception => CouldNot("create directory, not found", exception));
     }
 
     public void SetupGeneralInstaller(IPackageInstaller? packageInstaller)
@@ -163,7 +163,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         myAppsInstaller?.WhenInstall.Error
-            .Subscribe(exception => CouldNot("finish installation", exception.Message));
+            .Subscribe(exception => CouldNot("finish installation", exception));
 
         myAppsInstaller?.WhenSetupOutputReceive.Started
             .Where(output => !string.IsNullOrEmpty(output))
@@ -186,7 +186,7 @@ public class ConsoleEvents
             .Subscribe(_ => DoneMessage());
 
         chocoAppsInstaller?.WhenInstall.Error
-            .Subscribe(exception => CouldNot("finish installation", exception.Message));
+            .Subscribe(exception => CouldNot("finish installation", exception));
 
         chocoAppsInstaller?.WhenSetupOutputReceive.Started
             .Where(output => !output.Contains("Progress: "))
@@ -203,9 +203,11 @@ public class ConsoleEvents
             .Subscribe(output => Console.WriteLine($"\r{output}"));
     }
 
-    private void CouldNot(string action, string message)
+    private void CouldNot(string action, Exception exception)
     {
-        var writeError = $" Could not {action}: '{message}'";
+        var writeError = $" Could not {action}: '{exception.Message}'";
+        if (exception.InnerException is not null)
+            writeError += $", {exception.InnerException.Message}";
         Console.WriteLine(writeError);
         _errors.Add(writeError);
     }

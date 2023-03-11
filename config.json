@@ -24,6 +24,8 @@
     "~/Stuff/Books",
     "~/Stuff/Movies",
     "~/Stuff/Sec",
+    "~/Stuff/Backup",
+    "~/Stuff/Docs",
     
     "C:/Games"
   ],
@@ -38,7 +40,9 @@
     {"from" : "Backup/Work", "to":"~/Stuff/Work"},
     {"from" : "Backup/Books", "to":"~/Stuff/Books"},
     {"from" : "Backup/Movies", "to":"~/Stuff/Movies"},
-    {"from" : "Backup/Sec", "to":"~/Stuff/Sec"}
+    {"from" : "Backup/Sec", "to":"~/Stuff/Sec"},
+    {"from" : "Backup/Docs", "to":"~/Stuff/Docs"},
+    {"from" : "Backup/Backup", "to":"~/Stuff/Backup"}
   ],
 
   "shortcut_directories" : [
@@ -47,13 +51,14 @@
   ],
 
   "pin_to_quick_access" : [
-    "~/Stuff",
     "~/Stuff/Repo",
     "~/Stuff/BoardGame Design",
-    "~/Stuff/Vfx",
     "~/Stuff/Graphics",
+    "~/Stuff/Vfx",
+    "~/Stuff/Work",
     "~/Stuff/Photos",
-    "~/Stuff/Work"
+    "~/Stuff/Movies",
+    "~/Stuff"
   ],
 
   "startup_apps" : [

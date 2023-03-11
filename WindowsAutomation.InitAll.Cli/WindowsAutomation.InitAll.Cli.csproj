@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>WindowsAutomation.InitAll.Cli</RootNamespace>
+        <!--        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>-->
         <!--        <PublishSingleFile>true</PublishSingleFile>-->
         <!--        <SelfContained>true</SelfContained>-->
         <!--        <RuntimeIdentifier>win-x64</RuntimeIdentifier>-->

@@ -55,7 +55,7 @@ static async Task RunCoreLogic(IInitAllRunner initAllRunner)
 
     await initAllRunner.InstallPackages();
 
-    initAllRunner.SetupStartupApplications(config.StartupApps);
+    initAllRunner.SetupStartupApplications(config.StartupApps, config.StartupAppsToRemove);
 
     initAllRunner.CloneReposFromGitHub(config.GithubCredentials, config.ReposToClone, config.Paths.Repo);
     initAllRunner.SwapPowerShellProfileWithSymbolicLink($"""{config.Paths.Repo}\.dotfiles\{Constants.ProfileName}""");

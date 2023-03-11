@@ -65,6 +65,16 @@ public class ConsoleEvents
             .Subscribe(exception => CouldNot("add app to startup", exception));
 
 
+        initAllRunner.StartupAppsRemover.WhenAppStartupRemove.Started
+            .Subscribe(path => Console.Write($"Removing {path} from system startup..."));
+
+        initAllRunner.StartupAppsRemover.WhenAppStartupRemove.Finished
+            .Subscribe(_ => DoneMessage());
+
+        initAllRunner.StartupAppsRemover.WhenAppStartupRemove.Error
+            .Subscribe(exception => CouldNot("remove app from startup", exception));
+
+
         initAllRunner.SystemDateTimeChanger.WhenTimeZoneChange.Started
             .Subscribe(timeZoneId => Console.Write($"Changing time zone to '{timeZoneId}'..."));
 

@@ -63,7 +63,13 @@
 
   "startup_apps" : [
     "~/AppData/Local/Programs/Notion/Notion.exe",
-    "C:/Program Files/Google/Chrome/Application/chrome.exe"
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "C:/tools/One Commander/OneCommander.exe"
+  ],
+
+  "startup_apps_to_remove" : [
+    "C:/Program Files/Docker/Docker/Docker Desktop.exe -Autostart",
+    "C:/Program Files (x86)/Steam/steam.exe -silent"
   ],
 
   "time_zone_id" : "Central European Standard Time",

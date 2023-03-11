@@ -9,6 +9,7 @@ using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
 using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
+using WindowsAutomation.Shared.Os.Windows.StartupAppsRemover;
 using WindowsAutomation.Shared.Os.Windows.SystemDateTimeChanger;
 
 namespace WindowsAutomation.InitAll.Application;
@@ -25,6 +26,7 @@ public class WindowsInitAllRunner : IInitAllRunner
     public ICursorChanger CursorChanger { get; }
     public IPinner Pinner { get; }
     public IStartupAppsAdder StartupAppsAdder { get; }
+    public IStartupAppsRemover StartupAppsRemover { get; }
     public ISystemDateTimeChanger SystemDateTimeChanger { get; }
 
     private readonly IFileSerializer _fileSerializer;
@@ -32,7 +34,7 @@ public class WindowsInitAllRunner : IInitAllRunner
     public WindowsInitAllRunner(IEnumerable<IPackageInstaller> packageInstallers, IDirCleaner dirCleaner,
         IDirMaker dirMaker, IDirCopier dirCopier, IGitClient gitClient, IFileSerializer fileSerializer,
         ICursorChanger cursorChanger, IPinner pinner, IStartupAppsAdder startupAppsAdder,
-        ISystemDateTimeChanger systemDateTimeChanger)
+        IStartupAppsRemover startupAppsRemover, ISystemDateTimeChanger systemDateTimeChanger)
     {
         PackageInstallers = packageInstallers;
 
@@ -44,6 +46,7 @@ public class WindowsInitAllRunner : IInitAllRunner
         CursorChanger = cursorChanger;
         Pinner = pinner;
         StartupAppsAdder = startupAppsAdder;
+        StartupAppsRemover = startupAppsRemover;
         SystemDateTimeChanger = systemDateTimeChanger;
         _fileSerializer = fileSerializer;
     }
@@ -63,9 +66,10 @@ public class WindowsInitAllRunner : IInitAllRunner
         foreach (var installer in PackageInstallers) await installer.InstallPackages();
     }
 
-    public void SetupStartupApplications(string[] startupApps)
+    public void SetupStartupApplications(string[] startupApps, string[] startupAppsToRemove)
     {
         foreach (var app in startupApps) StartupAppsAdder.AddApp(app);
+        foreach (var app in startupAppsToRemove) StartupAppsRemover.RemoveApp(app);
     }
 
     public void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath)

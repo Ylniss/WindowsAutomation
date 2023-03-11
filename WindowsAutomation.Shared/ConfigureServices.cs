@@ -8,6 +8,7 @@ using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
 using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
+using WindowsAutomation.Shared.Os.Windows.StartupAppsRemover;
 using WindowsAutomation.Shared.Os.Windows.SystemDateTimeChanger;
 using WindowsAutomation.Shared.RegularExpression;
 using WindowsAutomation.Shared.Shell;
@@ -34,6 +35,7 @@ public static class ConfigureServices
             .AddScoped<ICursorChanger, CursorChanger>()
             .AddScoped<IPinner, Pinner>()
             .AddScoped<IStartupAppsAdder, StartupAppsAdder>()
+            .AddScoped<IStartupAppsRemover, StartupAppsRemover>()
             .AddScoped<ISystemDateTimeChanger, SystemDateTimeChanger>();
 
         return services;

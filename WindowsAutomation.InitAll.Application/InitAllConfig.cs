@@ -60,6 +60,7 @@ public record InitAllConfig
     public GithubCredentials GithubCredentials { get; }
     public string[] ReposToClone { get; }
     public string[] StartupApps { get; }
+    public string[] StartupAppsToRemove { get; }
     public SourceTargetPaths[] ShortcutDirectories { get; }
     public Paths Paths { get; }
     public string[] FolderStructure { get; }
@@ -71,7 +72,7 @@ public record InitAllConfig
 
     public InitAllConfig(GithubCredentials githubCredentials, string[] reposToClone, Paths paths,
         string[] folderStructure, SourceTargetPaths[] copyDirectories, SourceTargetPaths[] shortcutDirectories,
-        string[] pinToQuickAccess, string[] startupApps,
+        string[] pinToQuickAccess, string[] startupApps, string[] startupAppsToRemove,
         string timeZoneId, DateTimeFormat dateTimeFormat, Theme cursorTheme)
     {
         GithubCredentials = githubCredentials;
@@ -86,7 +87,9 @@ public record InitAllConfig
         ShortcutDirectories = shortcutDirectories
             .Select(copyPaths => new SourceTargetPaths(copyPaths.From.AsWindowsPath(), copyPaths.To.AsWindowsPath()))
             .ToArray();
+
         StartupApps = startupApps.Select(directory => directory.AsWindowsPath()).ToArray();
+        StartupAppsToRemove = startupAppsToRemove.Select(directory => directory.AsWindowsPath()).ToArray();
 
         PinToQuickAccess = pinToQuickAccess.Select(directory => directory.AsWindowsPath()).ToArray();
 

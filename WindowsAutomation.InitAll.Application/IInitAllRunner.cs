@@ -6,6 +6,7 @@ using WindowsAutomation.Shared.Git;
 using WindowsAutomation.Shared.Os.Windows.CursorChanger;
 using WindowsAutomation.Shared.Os.Windows.Pinner;
 using WindowsAutomation.Shared.Os.Windows.StartupAppsAdder;
+using WindowsAutomation.Shared.Os.Windows.StartupAppsRemover;
 using WindowsAutomation.Shared.Os.Windows.SystemDateTimeChanger;
 
 namespace WindowsAutomation.InitAll.Application;
@@ -21,11 +22,12 @@ public interface IInitAllRunner
     ICursorChanger CursorChanger { get; }
     IPinner Pinner { get; }
     IStartupAppsAdder StartupAppsAdder { get; }
+    IStartupAppsRemover StartupAppsRemover { get; }
     ISystemDateTimeChanger SystemDateTimeChanger { get; }
 
     InitAllConfig GetConfigFromJson();
     Task InstallPackages();
-    void SetupStartupApplications(string[] startupApps);
+    void SetupStartupApplications(string[] startupApps, string[] startupAppsToRemove);
     void CloneReposFromGitHub(GithubCredentials githubCredentials, string[] repoNames, string repoPath);
     void SwapPowerShellProfileWithSymbolicLink(string pathToTarget);
     void CreateInitialFolderStructure(string[] directories);

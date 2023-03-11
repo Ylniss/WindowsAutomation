@@ -18,7 +18,6 @@ public class CursorChanger : ICursorChanger
         if (!OperatingSystem.IsWindows()) return;
         var regKey = Registry.CurrentUser.OpenSubKey(@"Control Panel\\Cursors", true);
         if (regKey is null) throw new ApplicationException("Registry key not found");
-        ;
 
         WhenCursorThemeSet.Act(theme, t =>
         {

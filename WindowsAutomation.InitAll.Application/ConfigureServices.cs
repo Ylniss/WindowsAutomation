@@ -14,7 +14,8 @@ public static class ConfigureServices
             .AddScoped<IPackageInstaller, ChocoPackageInstaller>()
             .AddScoped<IPackageInstaller, MyPackageInstaller>()
             .AddScoped<AppInstaller, NandeckAppInstaller>()
-            //.AddScoped<AppInstaller, ResolumeAppInstaller>()
+            .AddScoped<AppInstaller, FotoSketcherInstaller>()
+            .AddScoped<AppInstaller, ResolumeAppInstaller>()
             .AddScoped<AppInstaller, GmicAppInstaller>();
 
         return services;
